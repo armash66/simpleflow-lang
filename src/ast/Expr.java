@@ -1,5 +1,6 @@
 package ast;
 
+import java.util.List;
 import lexer.Token;
 
 public abstract class Expr {
@@ -8,6 +9,7 @@ public abstract class Expr {
         R visitBinaryExpr(Binary expr);
         R visitLiteralExpr(Literal expr);
         R visitVariableExpr(Variable expr);
+        R visitCallExpr(Call expr);
     }
 
     public abstract <R> R accept(Visitor<R> visitor);
@@ -54,6 +56,23 @@ public abstract class Expr {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitVariableExpr(this);
+        }
+    }
+
+    public static class Call extends Expr {
+        public final Expr callee;
+        public final Token paren;
+        public final List<Expr> arguments;
+
+        public Call(Expr callee, Token paren, List<Expr> arguments) {
+            this.callee = callee;
+            this.paren = paren;
+            this.arguments = arguments;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitCallExpr(this);
         }
     }
 }

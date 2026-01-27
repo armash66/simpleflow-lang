@@ -1,16 +1,11 @@
 package interpreter;
 
 import ast.*;
-import lexer.Token;
-import lexer.TokenType;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
-    private final Map<String, Object> environment = new HashMap<>();
+    private Environment environment = new Environment();
 
     // ---------------- ENTRY ----------------
 
@@ -37,7 +32,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitPutStmt(Stmt.Put stmt) {
         Object value = evaluate(stmt.initializer);
-        environment.put(stmt.name.lexeme, value);
+        environment.define(stmt.name.lexeme, value);
+        return null;
+    }
+
+    @Override
+    public Void visitAssignStmt(Stmt.Assign stmt) {
+        Object value = evaluate(stmt.value);
+        environment.assign(stmt.name.lexeme, value);
         return null;
     }
 
@@ -50,9 +52,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
-        for (Stmt statement : stmt.statements) {
-            execute(statement);
-        }
+        executeBlock(stmt.statements, new Environment(environment));
         return null;
     }
 
@@ -79,6 +79,21 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         throw new StopSignal();
     }
 
+    @Override
+    public Void visitFunctionStmt(Stmt.Function stmt) {
+        environment.define(stmt.name.lexeme, stmt);
+        return null;
+    }
+
+    @Override
+    public Void visitReturnStmt(Stmt.Return stmt) {
+        Object value = null;
+        if (stmt.value != null) {
+            value = evaluate(stmt.value);
+        }
+        throw new ReturnSignal(value);
+    }
+
     // ---------------- EXPRESSIONS ----------------
 
     @Override
@@ -88,11 +103,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        if (!environment.containsKey(expr.name.lexeme)) {
-            throw new RuntimeException(
-                "Undefined variable '" + expr.name.lexeme + "' at line " + expr.name.line
-            );
-        }
         return environment.get(expr.name.lexeme);
     }
 
@@ -117,12 +127,48 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         };
     }
 
+    @Override
+    public Object visitCallExpr(Expr.Call expr) {
+
+        Object callee = evaluate(expr.callee);
+
+        if (!(callee instanceof Stmt.Function function)) {
+            throw new RuntimeException("Can only call functions.");
+        }
+
+        if (expr.arguments.size() != function.params.size()) {
+            throw new RuntimeException(
+                "Expected " + function.params.size() +
+                " arguments but got " + expr.arguments.size()
+            );
+        }
+
+        Environment previous = environment;
+        environment = new Environment(previous);
+
+        for (int i = 0; i < function.params.size(); i++) {
+            String name = function.params.get(i).lexeme;
+            Object value = evaluate(expr.arguments.get(i));
+            environment.define(name, value);
+        }
+
+        try {
+            executeBlock(function.body, environment);
+        } catch (ReturnSignal returnValue) {
+            environment = previous;
+            return returnValue.value;
+        }
+
+        environment = previous;
+        return null;
+    }
+
     // ---------------- HELPERS ----------------
 
     private boolean isTruthy(Object value) {
         if (value == null) return false;
-        if (value instanceof Boolean) return (boolean) value;
-        if (value instanceof Integer) return (int) value != 0;
+        if (value instanceof Boolean b) return b;
+        if (value instanceof Integer i) return i != 0;
         return true;
     }
 
@@ -131,19 +177,26 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return value.toString();
     }
 
-    // ---------------- STOP SIGNAL ----------------
+    private void executeBlock(List<Stmt> statements, Environment newEnv) {
+        Environment previous = environment;
+        try {
+            environment = newEnv;
+            for (Stmt stmt : statements) {
+                execute(stmt);
+            }
+        } finally {
+            environment = previous;
+        }
+    }
+
+    // ---------------- CONTROL FLOW ----------------
 
     private static class StopSignal extends RuntimeException {}
 
-    @Override
-        public Void visitAssignStmt(Stmt.Assign stmt) {
-    if (!environment.containsKey(stmt.name.lexeme)) {
-        throw new RuntimeException(
-            "Undefined variable '" + stmt.name.lexeme + "' at line " + stmt.name.line
-        );
-    }
-    Object value = evaluate(stmt.value);
-    environment.put(stmt.name.lexeme, value);
-    return null;
+    private static class ReturnSignal extends RuntimeException {
+        final Object value;
+        ReturnSignal(Object value) {
+            this.value = value;
+        }
     }
 }

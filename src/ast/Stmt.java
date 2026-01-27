@@ -1,7 +1,7 @@
 package ast;
 
-import lexer.Token;
 import java.util.List;
+import lexer.Token;
 
 public abstract class Stmt {
 
@@ -13,6 +13,8 @@ public abstract class Stmt {
         R visitIfStmt(If stmt);
         R visitWhileStmt(While stmt);
         R visitStopStmt(Stop stmt);
+        R visitFunctionStmt(Function stmt);
+        R visitReturnStmt(Return stmt);
     }
 
     public abstract <R> R accept(Visitor<R> visitor);
@@ -89,6 +91,38 @@ public abstract class Stmt {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitWhileStmt(this);
+        }
+    }
+
+    public static class Function extends Stmt {
+        public final Token name;
+        public final List<Token> params;
+        public final List<Stmt> body;
+
+        public Function(Token name, List<Token> params, List<Stmt> body) {
+            this.name = name;
+            this.params = params;
+            this.body = body;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitFunctionStmt(this);
+        }
+    }
+
+    public static class Return extends Stmt {
+        public final Token keyword;
+        public final Expr value;
+
+        public Return(Token keyword, Expr value) {
+            this.keyword = keyword;
+            this.value = value;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitReturnStmt(this);
         }
     }
 

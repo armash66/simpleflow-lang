@@ -1,34 +1,24 @@
-import lexer.*;
-import parser.*;
-import ast.*;
-import interpreter.*;
-
+import ast.Stmt;
+import interpreter.Interpreter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import lexer.Lexer;
+import parser.Parser;
 
 public class Main {
-    public static void main(String[] args) {
 
-        String code = """
-            put x = 3
+    public static void main(String[] args) throws Exception {
 
-            repeat (x > 0) {
-                show x
-                x = x - 1
-            }
+        if (args.length != 1) {
+            System.out.println("Usage: java Main <source-file>");
+            System.exit(1);
+        }
 
-            when (x == 0) {
-                say "finished"
-            } or {
-                say "error"
-            }
+        String source = Files.readString(Path.of(args[0]));
 
-            stop
-        """;
-
-        Lexer lexer = new Lexer(code);
-        List<Token> tokens = lexer.scanTokens();
-
-        Parser parser = new Parser(tokens);
+        Lexer lexer = new Lexer(source);
+        Parser parser = new Parser(lexer.scanTokens());
         List<Stmt> statements = parser.parse();
 
         Interpreter interpreter = new Interpreter();

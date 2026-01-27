@@ -1,10 +1,9 @@
 package parser;
 
-import lexer.*;
 import ast.*;
-
 import java.util.ArrayList;
 import java.util.List;
+import lexer.*;
 
 public class Parser {
 
@@ -30,23 +29,36 @@ public class Parser {
     // ---------------- STATEMENTS ----------------
 
     private Stmt statement() {
-        if (match(TokenType.PUT)) return putStatement();
 
+        // variable declaration
+        if (match(TokenType.SET)) return setStatement();
+
+        // assignment (x = expr)
         if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
             return assignmentStatement();
         }
 
+        // output
         if (match(TokenType.SAY)) return printStatement();
         if (match(TokenType.SHOW)) return printStatement();
+
+        // control flow
         if (match(TokenType.WHEN)) return ifStatement();
-        if (match(TokenType.REPEAT)) return repeatStatement();
-        if (match(TokenType.STOP)) return new Stmt.Stop();
+        if (match(TokenType.WHILE)) return whileStatement();
+
+        // program end
+        if (match(TokenType.EXIT)) return new Stmt.Stop();
+
+        if (match(TokenType.DEFINE)) return functionStatement();
+        if (match(TokenType.RETURN)) return returnStatement();
+
+        // block
         if (match(TokenType.LEFT_BRACE)) return new Stmt.Block(block());
 
         throw error(peek(), "Expected statement.");
     }
 
-    private Stmt putStatement() {
+    private Stmt setStatement() {
         Token name = consume(TokenType.IDENTIFIER, "Expected variable name.");
         consume(TokenType.EQUAL, "Expected '=' after variable name.");
         Expr initializer = expression();
@@ -73,20 +85,51 @@ public class Parser {
         Stmt thenBranch = statement();
         Stmt elseBranch = null;
 
-        if (match(TokenType.OR)) {
+        if (match(TokenType.OTHERWISE)) {
             elseBranch = statement();
         }
 
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
-    private Stmt repeatStatement() {
+    private Stmt whileStatement() {
         consume(TokenType.LEFT_PAREN, "Expected '(' after 'repeat'.");
         Expr condition = expression();
         consume(TokenType.RIGHT_PAREN, "Expected ')' after condition.");
 
         Stmt body = statement();
         return new Stmt.While(condition, body);
+    }
+
+    private Stmt functionStatement() {
+        Token name = consume(TokenType.IDENTIFIER, "Expected function name.");
+        consume(TokenType.LEFT_PAREN, "Expected '(' after function name.");
+
+        List<Token> parameters = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                parameters.add(
+                    consume(TokenType.IDENTIFIER, "Expected parameter name.")
+                );
+            } while (match(TokenType.COMMA));
+        }
+
+        consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
+        consume(TokenType.LEFT_BRACE, "Expected '{' before function body.");
+
+        List<Stmt> body = block();
+        return new Stmt.Function(name, parameters, body);
+    }
+
+    private Stmt returnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+
+        if (!check(TokenType.SEMICOLON) && !check(TokenType.RIGHT_BRACE)) {
+            value = expression();
+        }
+
+        return new Stmt.Return(keyword, value);
     }
 
     private List<Stmt> block() {
@@ -173,7 +216,8 @@ public class Parser {
         }
 
         if (match(TokenType.IDENTIFIER)) {
-            return new Expr.Variable(previous());
+            Expr expr = new Expr.Variable(previous());
+            return finishCall(expr);
         }
 
         if (match(TokenType.LEFT_PAREN)) {
@@ -182,8 +226,30 @@ public class Parser {
             return expr;
         }
 
+        if (match(TokenType.TRUE)) {
+            return new Expr.Literal(true);
+        }
+
+        if (match(TokenType.FALSE)) {
+            return new Expr.Literal(false);
+        }
+
         throw error(peek(), "Expected expression.");
     }
+
+    private Expr finishCall(Expr callee) {
+    if (!match(TokenType.LEFT_PAREN)) return callee;
+
+    List<Expr> arguments = new ArrayList<>();
+    if (!check(TokenType.RIGHT_PAREN)) {
+        do {
+            arguments.add(expression());
+        } while (match(TokenType.COMMA));
+    }
+
+    Token paren = consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments.");
+    return new Expr.Call(callee, paren, arguments);
+}
 
     // ---------------- HELPERS ----------------
 

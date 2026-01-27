@@ -5,22 +5,31 @@ public enum TokenType {
     // Single-character tokens
     LEFT_PAREN, RIGHT_PAREN,
     LEFT_BRACE, RIGHT_BRACE,
-    EQUAL, PLUS, MINUS, STAR, SLASH,
-    GREATER, LESS,
+    COMMA, DOT,
+    MINUS, PLUS,
+    SEMICOLON, SLASH, STAR,
 
     // One or two character tokens
-    EQUAL_EQUAL,
-    GREATER_EQUAL,
-    LESS_EQUAL,
+    BANG, BANG_EQUAL,
+    EQUAL, EQUAL_EQUAL,
+    GREATER, GREATER_EQUAL,
+    LESS, LESS_EQUAL,
 
     // Literals
-    IDENTIFIER, NUMBER, STRING,
+    IDENTIFIER, STRING, NUMBER,
 
     // Keywords
-    PUT, SAY, SHOW,
-    WHEN, OR,
-    REPEAT,
-    STOP,
+    SET,
+    SAY,
+    SHOW,
+    WHEN,
+    OTHERWISE,
+    WHILE,
+    EXIT,
+    TRUE,
+    FALSE,
+    DEFINE,
+    RETURN,
 
     // End of file
     EOF

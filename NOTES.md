@@ -37,14 +37,10 @@ The interpreter uses the AST to execute programs.
 The interpreter walks through the AST and executes the program.  
 It evaluates expressions, stores variables in memory, and controls program flow.
 
----
-
 ## Runtime Behavior
 
 Variables are stored in a simple map during execution.  
 Control flow such as loops and conditionals is handled by repeatedly evaluating conditions.
-
----
 
 ## Project Goal
 

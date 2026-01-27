@@ -15,13 +15,17 @@ public class Lexer {
 
     static {
         keywords = new HashMap<>();
-        keywords.put("put", TokenType.PUT);
+        keywords.put("set", TokenType.SET);
         keywords.put("say", TokenType.SAY);
         keywords.put("show", TokenType.SHOW);
         keywords.put("when", TokenType.WHEN);
-        keywords.put("or", TokenType.OR);
-        keywords.put("repeat", TokenType.REPEAT);
-        keywords.put("stop", TokenType.STOP);
+        keywords.put("otherwise", TokenType.OTHERWISE);
+        keywords.put("while", TokenType.WHILE);
+        keywords.put("exit", TokenType.EXIT);
+        keywords.put("true", TokenType.TRUE);
+        keywords.put("false", TokenType.FALSE);
+        keywords.put("define", TokenType.DEFINE);
+        keywords.put("return", TokenType.RETURN);
     }
 
     public Lexer(String source) {
@@ -46,6 +50,7 @@ public class Lexer {
             case ')' -> addToken(TokenType.RIGHT_PAREN);
             case '{' -> addToken(TokenType.LEFT_BRACE);
             case '}' -> addToken(TokenType.RIGHT_BRACE);
+            case ',' -> addToken(TokenType.COMMA);
             case '+' -> addToken(TokenType.PLUS);
             case '-' -> addToken(TokenType.MINUS);
             case '*' -> addToken(TokenType.STAR);
@@ -54,12 +59,15 @@ public class Lexer {
             case '>' -> addToken(match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
             case '<' -> addToken(match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
 
-            case '"' -> string();
+            case '#' -> {
+                // Comment: ignore until end of line
+                while (peek() != '\n' && !isAtEnd()) advance();
+            }
 
+            case '"' -> string();
             case ' ', '\r', '\t' -> {
                 // ignore whitespace
             }
-
             case '\n' -> line++;
 
             default -> {
@@ -89,8 +97,8 @@ public class Lexer {
     private void number() {
         while (isDigit(peek())) advance();
 
-        addToken(TokenType.NUMBER,
-                Integer.parseInt(source.substring(start, current)));
+        int value = Integer.parseInt(source.substring(start, current));
+        addToken(TokenType.NUMBER, value);
     }
 
     private void string() {
