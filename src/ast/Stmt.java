@@ -1,0 +1,116 @@
+package ast;
+
+import lexer.Token;
+import java.util.List;
+
+public abstract class Stmt {
+
+    public interface Visitor<R> {
+        R visitAssignStmt(Assign stmt);
+        R visitPutStmt(Put stmt);
+        R visitPrintStmt(Print stmt);
+        R visitBlockStmt(Block stmt);
+        R visitIfStmt(If stmt);
+        R visitWhileStmt(While stmt);
+        R visitStopStmt(Stop stmt);
+    }
+
+    public abstract <R> R accept(Visitor<R> visitor);
+
+    // --------------------
+
+    public static class Put extends Stmt {
+        public final Token name;
+        public final Expr initializer;
+
+        public Put(Token name, Expr initializer) {
+            this.name = name;
+            this.initializer = initializer;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitPutStmt(this);
+        }
+    }
+
+    public static class Print extends Stmt {
+        public final Expr expression;
+
+        public Print(Expr expression) {
+            this.expression = expression;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitPrintStmt(this);
+        }
+    }
+
+    public static class Block extends Stmt {
+        public final List<Stmt> statements;
+
+        public Block(List<Stmt> statements) {
+            this.statements = statements;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitBlockStmt(this);
+        }
+    }
+
+    public static class If extends Stmt {
+        public final Expr condition;
+        public final Stmt thenBranch;
+        public final Stmt elseBranch;
+
+        public If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+            this.condition = condition;
+            this.thenBranch = thenBranch;
+            this.elseBranch = elseBranch;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIfStmt(this);
+        }
+    }
+
+    public static class While extends Stmt {
+        public final Expr condition;
+        public final Stmt body;
+
+        public While(Expr condition, Stmt body) {
+            this.condition = condition;
+            this.body = body;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitWhileStmt(this);
+        }
+    }
+
+    public static class Stop extends Stmt {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitStopStmt(this);
+        }
+    }
+
+    public static class Assign extends Stmt {
+    public final Token name;
+    public final Expr value;
+
+    public Assign(Token name, Expr value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitAssignStmt(this);
+    }
+    }
+}
