@@ -1,48 +1,65 @@
-## Project Status
-- Lexer: DONE
-- Parser: DONE
-- Interpreter: DONE
-- Assignment support: DONE
+# How SimpleFlow Works
 
-## Last Working Output
-3
-2
-1
-finished
+SimpleFlow is designed as a small but complete interpreted language.  
+Its implementation follows the same execution model used by many real-world languages.
 
-## Next Planned Work
-- Git repo setup
-- File-based execution
-- Functions
+At a high level, SimpleFlow converts source code into executable behavior through four main stages.
 
-## Project Structure Overview
+---
 
-The project is divided into four main parts.
+## 1. Lexical Analysis (Lexer)
 
-### Lexer
-The lexer reads the source code as plain text and breaks it into tokens.  
-Tokens are small meaningful units like keywords, identifiers, numbers, and symbols.  
-This step removes raw text complexity and prepares input for parsing.
+The lexer reads the source file as raw text and breaks it into **tokens**.  
+Tokens represent meaningful units such as keywords, identifiers, numbers, operators, and symbols.
 
-### Parser
-The parser reads the tokens produced by the lexer and checks if they follow the rules of the language.  
-It converts tokens into structured statements and expressions based on grammar rules.
+This step removes the complexity of raw text and prepares structured input for parsing.
 
-### AST (Abstract Syntax Tree)
-The AST represents the logical structure of the program.  
-It stores the meaning of code instead of its textual form.  
-The interpreter uses the AST to execute programs.
+---
 
-### Interpreter
-The interpreter walks through the AST and executes the program.  
-It evaluates expressions, stores variables in memory, and controls program flow.
+## 2. Parsing (Parser)
 
-## Runtime Behavior
+The parser consumes the stream of tokens and checks whether they follow the grammar rules of the language.
 
-Variables are stored in a simple map during execution.  
-Control flow such as loops and conditionals is handled by repeatedly evaluating conditions.
+Using a **recursive-descent** approach, the parser converts tokens into an  
+**Abstract Syntax Tree (AST)**.
 
-## Project Goal
+The AST represents the logical structure of the program rather than its textual form.
 
-This project focuses on understanding the basics of language design, parsing, and interpretation.  
-It is intentionally minimal and not meant for production use.
+---
+
+## 3. Abstract Syntax Tree (AST)
+
+The AST is a tree-based representation of the program where:
+
+- Each node represents a statement or expression  
+- Execution order and relationships are explicitly defined  
+
+This separation allows the interpreter to focus on **meaning** instead of syntax.
+
+---
+
+## 4. Interpretation (Runtime Execution)
+
+The interpreter walks the AST and executes it step by step.
+
+During execution:
+
+- Variables are stored in an environment  
+- New environments are created for blocks and function calls  
+- Expressions are evaluated dynamically  
+- Control flow (loops, conditionals, returns) is handled at runtime  
+
+Function calls create their own local scope, and `return` statements exit execution
+early using controlled flow signals.
+
+---
+
+## Design Philosophy
+
+SimpleFlow is intentionally minimal.  
+It avoids optimizations, static typing, or advanced language features in favor of clarity.
+
+The goal is not performance, but **understanding**.
+
+Every component is written to be readable, modifiable, and easy to experiment with,
+making SimpleFlow a practical learning tool for exploring how programming languages are built.
