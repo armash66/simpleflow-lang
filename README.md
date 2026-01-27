@@ -73,11 +73,17 @@ finished
 The language is implemented using a classic interpreter pipeline:
 
 Source Code
+
    ↓
+
 Lexer        → Tokens
+
    ↓
+
 Parser       → AST
+
    ↓
+   
 Interpreter → Execution
 
 ## Directory Structure
