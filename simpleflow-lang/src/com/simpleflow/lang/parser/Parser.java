@@ -1,9 +1,12 @@
-package parser;
+package com.simpleflow.lang.parser;
 
-import ast.*;
 import java.util.ArrayList;
 import java.util.List;
-import lexer.*;
+
+import com.simpleflow.lang.ast.Expr;
+import com.simpleflow.lang.ast.Stmt;
+import com.simpleflow.lang.lexer.Token;
+import com.simpleflow.lang.lexer.TokenType;
 
 public class Parser {
 

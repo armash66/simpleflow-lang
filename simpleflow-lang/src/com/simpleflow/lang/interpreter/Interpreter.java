@@ -1,7 +1,9 @@
-package interpreter;
+package com.simpleflow.lang.interpreter;
 
-import ast.*;
 import java.util.List;
+
+import com.simpleflow.lang.ast.Expr;
+import com.simpleflow.lang.ast.Stmt;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 

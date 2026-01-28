@@ -1,4 +1,4 @@
-package interpreter;
+package com.simpleflow.lang.interpreter;
 
 import java.util.HashMap;
 import java.util.Map;

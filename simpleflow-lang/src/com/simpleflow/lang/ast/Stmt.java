@@ -1,7 +1,8 @@
-package ast;
+package com.simpleflow.lang.ast;
 
 import java.util.List;
-import lexer.Token;
+
+import com.simpleflow.lang.lexer.Token;
 
 public abstract class Stmt {
 

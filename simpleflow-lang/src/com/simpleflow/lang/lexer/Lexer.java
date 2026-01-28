@@ -1,4 +1,4 @@
-package lexer;
+package com.simpleflow.lang.lexer;
 
 import java.util.ArrayList;
 import java.util.HashMap;

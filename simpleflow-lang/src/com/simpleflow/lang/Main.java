@@ -1,13 +1,13 @@
 package com.simpleflow.lang;
 
+import com.simpleflow.lang.lexer.Lexer;
+import com.simpleflow.lang.parser.Parser;
+import com.simpleflow.lang.ast.Stmt;
+import com.simpleflow.lang.interpreter.Interpreter;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import ast.Stmt;
-import interpreter.Interpreter;
-import lexer.Lexer;
-import parser.Parser;
 
 public class Main {
 

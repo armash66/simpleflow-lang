@@ -1,4 +1,4 @@
-package lexer;
+package com.simpleflow.lang.lexer;
 
 public enum TokenType {
 
