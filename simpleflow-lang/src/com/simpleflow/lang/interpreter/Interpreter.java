@@ -1,5 +1,7 @@
 package com.simpleflow.lang.interpreter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 import com.simpleflow.lang.ast.Expr;
@@ -16,7 +18,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             for (Stmt stmt : statements) {
                 execute(stmt);
             }
-        } catch (StopSignal ignored) {
+        } catch (ExitSignal ignored) {
             // program stopped
         }
     }
@@ -94,7 +96,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitStopStmt(Stmt.Stop stmt) {
-        throw new StopSignal();
+        throw new ExitSignal();
     }
 
     @Override
@@ -209,7 +211,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     // ---------------- CONTROL FLOW ----------------
 
-    private static class StopSignal extends RuntimeException {}
+    private static class ExitSignal extends RuntimeException {}
 
     private static class ReturnSignal extends RuntimeException {
         final Object value;

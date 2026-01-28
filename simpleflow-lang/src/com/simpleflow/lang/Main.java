@@ -1,13 +1,13 @@
 package com.simpleflow.lang;
 
-import com.simpleflow.lang.lexer.Lexer;
-import com.simpleflow.lang.parser.Parser;
-import com.simpleflow.lang.ast.Stmt;
-import com.simpleflow.lang.interpreter.Interpreter;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import com.simpleflow.lang.ast.Stmt;
+import com.simpleflow.lang.interpreter.Interpreter;
+import com.simpleflow.lang.lexer.Lexer;
+import com.simpleflow.lang.parser.Parser;
 
 public class Main {
 
@@ -15,6 +15,7 @@ public class Main {
     // CLI ENTRY POINT
     // ======================
     public static void main(String[] args) throws Exception {
+        System.out.println("MAIN STARTED");
 
         if (args.length != 1) {
             System.out.println("Usage: java Main <source-file>");
@@ -22,7 +23,16 @@ public class Main {
         }
 
         String source = Files.readString(Path.of(args[0]));
-        run(source);
+
+        System.out.println("----- SOURCE START -----");
+        System.out.println(source);
+        System.out.println("----- SOURCE END -----");
+
+        String output = run(source);
+
+        if (!output.isEmpty()) {
+            System.out.println(output);
+        }
     }
 
     // ======================
@@ -32,6 +42,7 @@ public class Main {
         Lexer lexer = new Lexer(source);
         Parser parser = new Parser(lexer.scanTokens());
         List<Stmt> statements = parser.parse();
+        System.out.println("STATEMENTS COUNT = " + statements.size());
 
         Interpreter interpreter = new Interpreter();
         return interpreter.interpretAndReturn(statements);
