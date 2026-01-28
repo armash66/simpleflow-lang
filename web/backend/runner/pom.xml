@@ -44,7 +44,9 @@
 		<dependency>
 			<groupId>com.simpleflow</groupId>
 			<artifactId>simpleflow-lang</artifactId>
-			<version>1.0</version>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/simpleflow-lang.jar</systemPath>
 		</dependency>
 	</dependencies>
 
