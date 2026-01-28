@@ -21,6 +21,22 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
     }
 
+    public String interpretAndReturn(List<Stmt> statements) {
+        StringBuilder output = new StringBuilder();
+
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(buffer));
+
+        try {
+            interpret(statements);
+        } finally {
+            System.setOut(originalOut);
+        }
+
+        return buffer.toString().trim();
+    }
+
     private void execute(Stmt stmt) {
         stmt.accept(this);
     }

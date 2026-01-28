@@ -11,6 +11,9 @@ import java.util.List;
 
 public class Main {
 
+    // ======================
+    // CLI ENTRY POINT
+    // ======================
     public static void main(String[] args) throws Exception {
 
         if (args.length != 1) {
@@ -19,12 +22,18 @@ public class Main {
         }
 
         String source = Files.readString(Path.of(args[0]));
+        run(source);
+    }
 
+    // ======================
+    // REUSABLE ENGINE API
+    // ======================
+    public static String run(String source) {
         Lexer lexer = new Lexer(source);
         Parser parser = new Parser(lexer.scanTokens());
         List<Stmt> statements = parser.parse();
 
         Interpreter interpreter = new Interpreter();
-        interpreter.interpret(statements);
+        return interpreter.interpretAndReturn(statements);
     }
 }
