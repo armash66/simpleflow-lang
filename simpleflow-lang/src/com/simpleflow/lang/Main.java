@@ -1,8 +1,11 @@
-import ast.Stmt;
-import interpreter.Interpreter;
+package com.simpleflow.lang;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import ast.Stmt;
+import interpreter.Interpreter;
 import lexer.Lexer;
 import parser.Parser;
 

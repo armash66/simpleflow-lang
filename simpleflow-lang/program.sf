@@ -1,0 +1,31 @@
+define add(a, b) {
+    return a + b
+}
+
+define factorial(n) {
+    when (n == 0) {
+        return 1
+    } otherwise {
+        return n * factorial(n - 1)
+    }
+}
+
+set x = 2
+set y = 3
+
+set sum = add(x, y)
+show sum
+
+set isBig = sum > 4
+show isBig
+
+set counter = 3
+while (counter > 0) {
+    show counter
+    counter = counter - 1
+}
+
+set fact = factorial(5)
+show fact
+
+exit
