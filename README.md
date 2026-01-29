@@ -34,6 +34,7 @@ set x = 10
 ```bash
 say "hello"
 show x
+```
 
 ### Conditional
 ```bash
