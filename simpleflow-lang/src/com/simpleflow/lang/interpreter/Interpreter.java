@@ -24,7 +24,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     public String interpretAndReturn(List<Stmt> statements) {
-        StringBuilder output = new StringBuilder();
 
         PrintStream originalOut = System.out;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

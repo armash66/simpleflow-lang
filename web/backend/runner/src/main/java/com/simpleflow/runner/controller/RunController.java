@@ -8,7 +8,10 @@ import java.util.Map;
 @RestController
 @CrossOrigin(origins = "*")
 public class RunController {
-
+    @GetMapping("/health")
+    public Map<String, String> health() {
+        return Map.of("status", "ok");
+    }
     @PostMapping("/run")
     public Map<String, String> run(@RequestBody Map<String, String> body) {
         try {
