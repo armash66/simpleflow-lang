@@ -30,10 +30,11 @@ public class RunController {
     public Map<String, String> run(@RequestBody Map<String, String> body) {
 
         Map<String, String> response = new HashMap<>();
+        response.put("output", "");
+        response.put("error", "");
 
         String code = body.get("code");
         if (code == null || code.isBlank()) {
-            response.put("output", "");
             response.put("error", "No code provided");
             return response;
         }
@@ -43,27 +44,25 @@ public class RunController {
         try {
             Future<String> future = executor.submit(() -> Main.run(code));
 
-            // ⏱ 2 second execution limit
+            // ⏱ execution timeout (critical)
             String output = future.get(2, TimeUnit.SECONDS);
 
+            if (output != null) {
+                // normalize output for frontend
+                output = output.replace("\r\n", "\n").trim();
+            }
+
             response.put("output", output == null ? "" : output);
-            response.put("error", "");
 
         } catch (TimeoutException e) {
-            response.put("output", "");
             response.put("error", "Execution timed out (2000ms)");
 
         } catch (InterruptedException e) {
-            response.put("output", "");
             response.put("error", "Execution interrupted");
 
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
-            response.put("output", "");
-            response.put(
-                "error",
-                cause != null ? cause.getMessage() : e.getMessage()
-            );
+            response.put("error", cause != null ? cause.getMessage() : e.getMessage());
 
         } finally {
             executor.shutdownNow();

@@ -45,7 +45,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             System.setOut(originalOut);
         }
 
-        return buffer.toString().trim();
+        return buffer
+                .toString()
+                .replace("\r\n", "\n")
+                .trim();
     }
 
     private void execute(Stmt stmt) {
