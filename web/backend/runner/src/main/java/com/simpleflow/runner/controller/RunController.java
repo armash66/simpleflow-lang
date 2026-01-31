@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.simpleflow.lang.Main;
+import com.simpleflow.runner.util.CodeExecutor;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -31,10 +32,13 @@ public class RunController {
                 );
             }
 
-            String output = Main.run(code);
+            String output = CodeExecutor.runWithTimeout(
+                () -> Main.run(code),
+                2000 // 2 seconds
+            );
 
             return Map.of(
-                "output", output == null ? "" : output,
+                "output", output,
                 "error", ""
             );
 
