@@ -11,6 +11,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private Environment environment = new Environment();
     private boolean inLoop = false;
+    private static final int MAX_STEPS = 100_000;
+    private int steps = 0;
+
+    private void checkExecution() {
+        steps++;
+        if (steps > MAX_STEPS) {
+            throw new RuntimeException("Execution limit exceeded");
+        }
+    }
 
     // ---------------- ENTRY ----------------
 
@@ -105,14 +114,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
-        boolean previous = inLoop;
-        inLoop = true;
-
         while (isTruthy(evaluate(stmt.condition))) {
+            checkExecution();      // 🔥 THIS LINE FIXES EVERYTHING
             execute(stmt.body);
         }
-
-        inLoop = previous;
         return null;
     }
 
