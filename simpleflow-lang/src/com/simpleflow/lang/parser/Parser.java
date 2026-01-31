@@ -298,9 +298,8 @@ public class Parser {
         return tokens.get(current - 1);
     }
 
-    private RuntimeException error(Token token, String message) {
-        return new RuntimeException(
-                "[line " + token.line + "] Error at '" + token.lexeme + "': " + message
-        );
+    private ParseError error(Token token, String message) {
+        return new ParseError(token, message);
     }
+
 }

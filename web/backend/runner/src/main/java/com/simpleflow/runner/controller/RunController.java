@@ -1,6 +1,13 @@
 package com.simpleflow.runner.controller;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.simpleflow.lang.Main;
-import com.simpleflow.runner.util.CodeExecutor;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -21,32 +27,48 @@ public class RunController {
     }
 
     @PostMapping("/run")
-    public Map<String, Object> run(@RequestBody Map<String, String> body) {
-        try {
-            String code = body.get("code");
+    public Map<String, String> run(@RequestBody Map<String, String> body) {
 
-            if (code == null || code.isBlank()) {
-                return Map.of(
-                    "output", "",
-                    "error", "No code provided"
-                );
-            }
+        Map<String, String> response = new HashMap<>();
 
-            String output = CodeExecutor.runWithTimeout(
-                () -> Main.run(code),
-                2000 // 2 seconds
-            );
-
-            return Map.of(
-                "output", output,
-                "error", ""
-            );
-
-        } catch (Exception e) {
-            return Map.of(
-                "output", "",
-                "error", e.getMessage()
-            );
+        String code = body.get("code");
+        if (code == null || code.isBlank()) {
+            response.put("output", "");
+            response.put("error", "No code provided");
+            return response;
         }
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        try {
+            Future<String> future = executor.submit(() -> Main.run(code));
+
+            // ⏱ 2 second execution limit
+            String output = future.get(2, TimeUnit.SECONDS);
+
+            response.put("output", output == null ? "" : output);
+            response.put("error", "");
+
+        } catch (TimeoutException e) {
+            response.put("output", "");
+            response.put("error", "Execution timed out (2000ms)");
+
+        } catch (InterruptedException e) {
+            response.put("output", "");
+            response.put("error", "Execution interrupted");
+
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            response.put("output", "");
+            response.put(
+                "error",
+                cause != null ? cause.getMessage() : e.getMessage()
+            );
+
+        } finally {
+            executor.shutdownNow();
+        }
+
+        return response;
     }
 }

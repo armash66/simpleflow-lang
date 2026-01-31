@@ -1,3 +1,6 @@
-set x = 5
-show x
+set x = 3
+while (x > 0) {
+  show x
+  set x = x - 1
+}
 exit

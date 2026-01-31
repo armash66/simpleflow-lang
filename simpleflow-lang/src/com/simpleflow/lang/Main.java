@@ -39,12 +39,16 @@ public class Main {
     // REUSABLE ENGINE API
     // ======================
     public static String run(String source) {
-        Lexer lexer = new Lexer(source);
-        Parser parser = new Parser(lexer.scanTokens());
-        List<Stmt> statements = parser.parse();
-        System.out.println("STATEMENTS COUNT = " + statements.size());
+        try {
+            Lexer lexer = new Lexer(source);
+            Parser parser = new Parser(lexer.scanTokens());
+            List<Stmt> statements = parser.parse();
 
-        Interpreter interpreter = new Interpreter();
-        return interpreter.interpretAndReturn(statements);
+            Interpreter interpreter = new Interpreter();
+            return interpreter.interpretAndReturn(statements);
+
+        } catch (com.simpleflow.lang.parser.ParseError e) {
+            return "Parse error at line " + e.line + ": " + e.getMessage();
+        }
     }
 }
