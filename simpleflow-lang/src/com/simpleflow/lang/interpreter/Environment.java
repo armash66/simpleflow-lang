@@ -47,4 +47,10 @@ public class Environment {
 
         throw new RuntimeException("Undefined variable '" + name + "'.");
     }
+
+    public boolean exists(String name) {
+        if (values.containsKey(name)) return true;
+        if (enclosing != null) return enclosing.exists(name);
+        return false;
+    }
 }

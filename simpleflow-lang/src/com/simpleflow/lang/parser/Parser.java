@@ -56,7 +56,9 @@ public class Parser {
         if (match(TokenType.RETURN)) return returnStatement();
 
         // block
-        if (match(TokenType.LEFT_BRACE)) return new Stmt.Block(block());
+        if (match(TokenType.LEFT_BRACE)) {
+            return new Stmt.Block(block());
+        }
 
         throw error(peek(), "Expected statement.");
     }

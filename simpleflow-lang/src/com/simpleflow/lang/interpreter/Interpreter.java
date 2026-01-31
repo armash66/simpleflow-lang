@@ -10,6 +10,7 @@ import com.simpleflow.lang.ast.Stmt;
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private Environment environment = new Environment();
+    private boolean inLoop = false;
 
     // ---------------- ENTRY ----------------
 
@@ -51,9 +52,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitPutStmt(Stmt.Put stmt) {
         Object value = evaluate(stmt.initializer);
-        environment.define(stmt.name.lexeme, value);
+
+        if (environment.exists(stmt.name.lexeme)) {
+            environment.assign(stmt.name.lexeme, value);
+        } else {
+            environment.define(stmt.name.lexeme, value);
+        }
+
         return null;
     }
+
 
     @Override
     public Void visitAssignStmt(Stmt.Assign stmt) {
@@ -71,7 +79,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
-        executeBlock(stmt.statements, new Environment(environment));
+
+        if (inLoop) {
+            // SAME environment → allow mutation
+            for (Stmt s : stmt.statements) {
+                execute(s);
+            }
+        } else {
+            // normal lexical scope
+            executeBlock(stmt.statements, new Environment(environment));
+        }
+
         return null;
     }
 
@@ -87,9 +105,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
+        boolean previous = inLoop;
+        inLoop = true;
+
         while (isTruthy(evaluate(stmt.condition))) {
             execute(stmt.body);
         }
+
+        inLoop = previous;
         return null;
     }
 
