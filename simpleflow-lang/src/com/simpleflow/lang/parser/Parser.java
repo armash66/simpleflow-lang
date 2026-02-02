@@ -32,7 +32,6 @@ public class Parser {
     // ---------------- STATEMENTS ----------------
 
     private Stmt statement() {
-
         // variable declaration
         if (match(TokenType.SET)) return setStatement();
 
@@ -46,7 +45,7 @@ public class Parser {
         if (match(TokenType.SHOW)) return printStatement();
 
         // control flow
-        if (match(TokenType.WHEN)) return ifStatement();
+        if (match(TokenType.WHEN)) return whenStatement();
         if (match(TokenType.WHILE)) return whileStatement();
 
         // program end
@@ -82,7 +81,7 @@ public class Parser {
         return new Stmt.Print(value);
     }
 
-    private Stmt ifStatement() {
+    private Stmt whenStatement() {
         consume(TokenType.LEFT_PAREN, "Expected '(' after 'when'.");
         Expr condition = expression();
         consume(TokenType.RIGHT_PAREN, "Expected ')' after condition.");
@@ -98,7 +97,7 @@ public class Parser {
     }
 
     private Stmt whileStatement() {
-        consume(TokenType.LEFT_PAREN, "Expected '(' after 'repeat'.");
+        consume(TokenType.LEFT_PAREN, "Expected '(' after 'while'.");
         Expr condition = expression();
         consume(TokenType.RIGHT_PAREN, "Expected ')' after condition.");
 
@@ -301,10 +300,6 @@ public class Parser {
     }
 
     private ParseError error(Token token, String message) {
-        return new ParseError(
-            token.line,
-            token.column,
-            message
-        );
+        throw new ParseError(token.line, token.column, message);
     }
 }

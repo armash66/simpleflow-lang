@@ -7,6 +7,7 @@ import java.util.List;
 import com.simpleflow.lang.ast.Stmt;
 import com.simpleflow.lang.interpreter.Interpreter;
 import com.simpleflow.lang.lexer.Lexer;
+import com.simpleflow.lang.parser.ParseError;
 import com.simpleflow.lang.parser.Parser;
 
 public class Main {
@@ -47,8 +48,10 @@ public class Main {
             Interpreter interpreter = new Interpreter();
             return interpreter.interpretAndReturn(statements);
 
-        } catch (com.simpleflow.lang.parser.ParseError e) {
-            return "Parse error at line " + e.line + ", col " + e.column + ": " + e.getMessage();            
+        } catch (ParseError e) {
+            return "Parse error at line " + e.line +
+                ", column " + e.column +
+                ": " + e.getMessage();
         }
     }
 }

@@ -24,6 +24,7 @@ public enum TokenType {
     SHOW,
     WHEN,
     OTHERWISE,
+    ELSE,
     WHILE,
     EXIT,
     TRUE,

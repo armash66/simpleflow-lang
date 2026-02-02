@@ -13,7 +13,7 @@ public class Lexer {
     private int start = 0;
     private int current = 0;
     private int line = 1;
-    private int column = 0;
+    private int column = 1;
 
     private static final Map<String, TokenType> keywords;
 
@@ -23,6 +23,7 @@ public class Lexer {
         keywords.put("say", TokenType.SAY);
         keywords.put("show", TokenType.SHOW);
         keywords.put("when", TokenType.WHEN);
+        keywords.put("else", TokenType.ELSE);
         keywords.put("otherwise", TokenType.OTHERWISE);
         keywords.put("while", TokenType.WHILE);
         keywords.put("exit", TokenType.EXIT);
@@ -74,7 +75,8 @@ public class Lexer {
             }
             case '\n' -> {
                 line++;
-                column = 0;
+                column = 1;
+                break;
                 }
 
             default -> {
@@ -129,7 +131,6 @@ public class Lexer {
         if (isAtEnd()) return false;
         if (source.charAt(current) != expected) return false;
         current++;
-        column++;
         return true;
     }
 
@@ -143,7 +144,9 @@ public class Lexer {
     }
 
     private char advance() {
-        return source.charAt(current++);
+        current++;
+        column++;
+        return source.charAt(current - 1);
     }
 
     private void addToken(TokenType type) {
@@ -152,7 +155,7 @@ public class Lexer {
 
     private void addToken(TokenType type, Object literal) {
         String text = source.substring(start, current);
-        tokens.add(new Token(type, text, literal, line, column));
+        tokens.add(new Token(type, text, literal, line, column - text.length()));
     }
 
     private boolean isDigit(char c) {

@@ -1,7 +1,6 @@
 package com.simpleflow.lang.parser;
 
 public class ParseError extends RuntimeException {
-
     public final int line;
     public final int column;
 
