@@ -301,7 +301,10 @@ public class Parser {
     }
 
     private ParseError error(Token token, String message) {
-        return new ParseError(token, message);
+        return new ParseError(
+            token.line,
+            token.column,
+            message
+        );
     }
-
 }

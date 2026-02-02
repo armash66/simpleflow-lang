@@ -1,13 +1,13 @@
 package com.simpleflow.lang.parser;
 
-import com.simpleflow.lang.lexer.Token;
-
 public class ParseError extends RuntimeException {
 
     public final int line;
+    public final int column;
 
-    public ParseError(Token token, String message) {
+    public ParseError(int line, int column, String message) {
         super(message);
-        this.line = token.line;
+        this.line = line;
+        this.column = column;
     }
 }

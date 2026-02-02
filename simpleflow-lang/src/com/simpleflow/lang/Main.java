@@ -48,7 +48,7 @@ public class Main {
             return interpreter.interpretAndReturn(statements);
 
         } catch (com.simpleflow.lang.parser.ParseError e) {
-            return "Parse error at line " + e.line + ": " + e.getMessage();
+            return "Parse error at line " + e.line + ", col " + e.column + ": " + e.getMessage();            
         }
     }
 }
