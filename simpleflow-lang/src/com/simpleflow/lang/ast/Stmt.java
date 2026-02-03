@@ -13,9 +13,11 @@ public abstract class Stmt {
         R visitBlockStmt(Block stmt);
         R visitIfStmt(If stmt);
         R visitWhileStmt(While stmt);
-        R visitStopStmt(Stop stmt);
         R visitFunctionStmt(Function stmt);
         R visitReturnStmt(Return stmt);
+        R visitExitStmt(Exit stmt);
+        R visitLeaveStmt(Leave stmt);
+        R visitNextStmt(Next stmt);
     }
 
     public abstract <R> R accept(Visitor<R> visitor);
@@ -127,13 +129,6 @@ public abstract class Stmt {
         }
     }
 
-    public static class Stop extends Stmt {
-        @Override
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitStopStmt(this);
-        }
-    }
-
     public static class Assign extends Stmt {
     public final Token name;
     public final Expr value;
@@ -141,6 +136,29 @@ public abstract class Stmt {
     public Assign(Token name, Expr value) {
         this.name = name;
         this.value = value;
+    }
+
+    // ---------------- CONTROL FLOW ----------------
+
+    public static class Exit extends Stmt {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitExitStmt(this);
+        }
+    }
+
+    public static class Leave extends Stmt {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLeaveStmt(this);
+        }
+    }
+
+    public static class Next extends Stmt {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitNextStmt(this);
+        }
     }
 
     @Override

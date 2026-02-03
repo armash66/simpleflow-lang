@@ -47,9 +47,11 @@ public class Parser {
         // control flow
         if (match(TokenType.WHEN)) return whenStatement();
         if (match(TokenType.WHILE)) return whileStatement();
+        if (match(TokenType.LEAVE)) return new Stmt.StopLoop();
+        if (match(TokenType.NEXT)) return new Stmt.NextLoop();
 
         // program end
-        if (match(TokenType.EXIT)) return new Stmt.Stop();
+        if (match(TokenType.EXIT)) return new Stmt.Exit();
 
         if (match(TokenType.DEFINE)) return functionStatement();
         if (match(TokenType.RETURN)) return returnStatement();

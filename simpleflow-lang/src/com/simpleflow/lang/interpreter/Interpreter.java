@@ -11,15 +11,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private Environment environment = new Environment();
     private boolean inLoop = false;
-    private static final int MAX_STEPS = 100_000;
-    private int steps = 0;
-
-    private void checkExecution() {
-        steps++;
-        if (steps > MAX_STEPS) {
-            throw new RuntimeException("Execution limit exceeded");
-        }
-    }
 
     // ---------------- ENTRY ----------------
 
@@ -74,7 +65,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
-
     @Override
     public Void visitAssignStmt(Stmt.Assign stmt) {
         Object value = evaluate(stmt.value);
@@ -117,16 +107,25 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
-        while (isTruthy(evaluate(stmt.condition))) {
-            checkExecution();      // 🔥 THIS LINE FIXES EVERYTHING
-            execute(stmt.body);
-        }
-        return null;
-    }
 
-    @Override
-    public Void visitStopStmt(Stmt.Stop stmt) {
-        throw new ExitSignal();
+        boolean previous = inLoop;
+        inLoop = true;
+
+        try {
+            while (isTruthy(evaluate(stmt.condition))) {
+                try {
+                    execute(stmt.body);
+                } catch (NextSignal n) {
+                    continue;
+                } catch (LeaveSignal l) {
+                    break;
+                }
+            }
+        } finally {
+            inLoop = previous;
+        }
+
+        return null;
     }
 
     @Override
@@ -211,6 +210,27 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         environment = previous;
         return null;
+    }
+
+    @Override
+    public Void visitExitStmt(Stmt.Exit stmt) {
+        throw new ExitSignal();
+    }
+
+    @Override
+    public Void visitLeaveStmt(Stmt.Leave stmt) {
+        if (!inLoop) {
+            throw new RuntimeException("leave used outside loop");
+        }
+        throw new LeaveSignal();
+    }
+
+    @Override
+    public Void visitNextStmt(Stmt.Next stmt) {
+        if (!inLoop) {
+            throw new RuntimeException("next used outside loop");
+        }
+        throw new NextSignal();
     }
 
     // ---------------- HELPERS ----------------
