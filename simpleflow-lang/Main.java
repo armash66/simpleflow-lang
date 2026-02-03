@@ -16,18 +16,13 @@ public class Main {
     // CLI ENTRY POINT
     // ======================
     public static void main(String[] args) throws Exception {
-        System.out.println("MAIN STARTED");
 
         if (args.length != 1) {
-            System.out.println("Usage: java Main <source-file>");
-            System.exit(1);
+            System.out.println("Usage: java Main <file.sf>");
+            return;
         }
 
         String source = Files.readString(Path.of(args[0]));
-
-        System.out.println("----- SOURCE START -----");
-        System.out.println(source);
-        System.out.println("----- SOURCE END -----");
 
         String output = run(source);
 
@@ -50,8 +45,10 @@ public class Main {
 
         } catch (ParseError e) {
             return "Parse error at line " + e.line +
-                ", column " + e.column +
-                ": " + e.getMessage();
+                   ", column " + e.column +
+                   ": " + e.getMessage();
+        } catch (RuntimeException e) {
+            return "Runtime error: " + e.getMessage();
         }
     }
 }

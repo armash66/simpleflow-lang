@@ -22,7 +22,28 @@ public abstract class Stmt {
 
     public abstract <R> R accept(Visitor<R> visitor);
 
-    // --------------------
+    // ===== CONTROL FLOW STATEMENTS =====
+
+    public static class Exit extends Stmt {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitExitStmt(this);
+        }
+    }
+
+    public static class Leave extends Stmt {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLeaveStmt(this);
+        }
+    }
+
+    public static class Next extends Stmt {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitNextStmt(this);
+        }
+    }
 
     public static class Put extends Stmt {
         public final Token name;
@@ -136,29 +157,6 @@ public abstract class Stmt {
     public Assign(Token name, Expr value) {
         this.name = name;
         this.value = value;
-    }
-
-    // ---------------- CONTROL FLOW ----------------
-
-    public static class Exit extends Stmt {
-        @Override
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitExitStmt(this);
-        }
-    }
-
-    public static class Leave extends Stmt {
-        @Override
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitLeaveStmt(this);
-        }
-    }
-
-    public static class Next extends Stmt {
-        @Override
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitNextStmt(this);
-        }
     }
 
     @Override
