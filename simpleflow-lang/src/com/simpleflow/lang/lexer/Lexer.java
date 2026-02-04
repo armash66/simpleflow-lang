@@ -26,8 +26,8 @@ public class Lexer {
         keywords.put("otherwise", TokenType.OTHERWISE);
         keywords.put("while", TokenType.WHILE);
         keywords.put("exit", TokenType.EXIT);
-        keywords.put("break", TokenType.BREAK);
-        keywords.put("continue", TokenType.CONTINUE);
+        keywords.put("leave", TokenType.LEAVE);
+        keywords.put("next", TokenType.NEXT);
         keywords.put("true", TokenType.TRUE);
         keywords.put("false", TokenType.FALSE);
         keywords.put("define", TokenType.DEFINE);

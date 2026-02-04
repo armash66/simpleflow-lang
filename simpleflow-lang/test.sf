@@ -1,6 +1,17 @@
-set x = 3
+set x = 5
+
 while (x > 0) {
-  show x
   set x = x - 1
+
+  when (x == 3) {
+    next
+  }
+
+  when (x == 1) {
+    leave
+  }
+
+  show x
 }
+
 exit
