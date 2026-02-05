@@ -33,7 +33,7 @@ public class Parser {
 
     private Stmt statement() {
         // variable declaration
-        if (match(TokenType.SET)) return setStatement();
+        if (match(TokenType.STORE)) return setStatement();
 
         // assignment (x = expr)
         if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
@@ -114,7 +114,7 @@ public class Parser {
         Stmt initializer = null;
         if (match(TokenType.SEMICOLON)) {
             // no initializer
-        } else if (match(TokenType.SET)) {
+        } else if (match(TokenType.STORE)) {
             initializer = setStatement();
             consume(TokenType.SEMICOLON, "Expected ';' after initializer.");
         } else if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
@@ -132,7 +132,7 @@ public class Parser {
 
         Stmt increment = null;
         if (!check(TokenType.RIGHT_PAREN)) {
-            if (match(TokenType.SET)) {
+            if (match(TokenType.STORE)) {
                 increment = setStatement();
             } else if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
                 increment = assignmentStatement();

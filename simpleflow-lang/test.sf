@@ -1,8 +1,8 @@
 # ----------------------------
 # Variables & arithmetic
 # ----------------------------
-set a = 10
-set b = 3
+store a = 10
+store b = 3
 
 show a + b
 show a - b
@@ -31,11 +31,11 @@ when (a > 5) {
 # ----------------------------
 # while + leave
 # ----------------------------
-set x = 5
+store x = 5
 
 while (x > 0) {
   show x
-  set x = x - 1
+  store x = x - 1
 
   when (x == 2) {
     leave
@@ -51,7 +51,7 @@ while (x > 0) {
 # ----------------------------
 # loop (for-style) + next
 # ----------------------------
-loop (set i = 0; i < 5; i = i + 1) {
+loop (store i = 0; i < 5; i = i + 1) {
 
   when (i == 2) {
     next
@@ -85,10 +85,10 @@ show sum(7, 5)
 # ----------------------------
 # Nested scope test
 # ----------------------------
-set z = 1
+store z = 1
 
 when (true) {
-  set z = 10
+  store z = 10
   show z
 }
 

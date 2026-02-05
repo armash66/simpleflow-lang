@@ -22,7 +22,7 @@ public enum TokenType {
     AND,
     OR,
     NOT,
-    SET,
+    STORE,
     SAY,
     SHOW,
     WHEN,
