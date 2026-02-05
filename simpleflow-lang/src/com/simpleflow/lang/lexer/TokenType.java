@@ -28,6 +28,7 @@ public enum TokenType {
     WHEN,
     OTHERWISE,
     WHILE,
+    FOR,
     EXIT,
     LEAVE,
     NEXT,

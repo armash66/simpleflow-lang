@@ -56,12 +56,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitPutStmt(Stmt.Put stmt) {
         Object value = evaluate(stmt.initializer);
-
-        if (environment.exists(stmt.name.lexeme)) {
-            environment.assign(stmt.name.lexeme, value);
-        } else {
-            environment.define(stmt.name.lexeme, value);
-        }
+        environment.define(stmt.name.lexeme, value);
 
         return null;
     }

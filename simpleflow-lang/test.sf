@@ -1,11 +1,104 @@
+# ----------------------------
+# Variables & arithmetic
+# ----------------------------
+set a = 10
+set b = 3
+
+show a + b
+show a - b
+show a * b
+show a / b
+
+
+# ----------------------------
+# Boolean logic
+# ----------------------------
+show a > b
+show a == b
+show a < b
+
+
+# ----------------------------
+# when / otherwise
+# ----------------------------
+when (a > 5) {
+  show 100
+} otherwise {
+  show 0
+}
+
+
+# ----------------------------
+# while + leave
+# ----------------------------
 set x = 5
 
-when (not x) {
-  show "this will NOT print because x is truthy"
+while (x > 0) {
+  show x
+  set x = x - 1
+
+  when (x == 2) {
+    leave
+  }
 }
 
-when (not (x == 0)) {
-  show "this WILL print"
+# Expected loop output:
+# 5
+# 4
+# 3
+
+
+# ----------------------------
+# loop (for-style) + next
+# ----------------------------
+loop (set i = 0; i < 5; i = i + 1) {
+
+  when (i == 2) {
+    next
+  }
+
+  show i
 }
 
+# Expected:
+# 0
+# 1
+# 3
+# 4
+
+
+# ----------------------------
+# Functions + return
+# ----------------------------
+define square(n) {
+  return n * n
+}
+
+define sum(a, b) {
+  return a + b
+}
+
+show square(4)
+show sum(7, 5)
+
+
+# ----------------------------
+# Nested scope test
+# ----------------------------
+set z = 1
+
+when (true) {
+  set z = 10
+  show z
+}
+
+show z
+
+
+# ----------------------------
+# Program exit
+# ----------------------------
 exit
+
+# nothing after this should run
+show 999

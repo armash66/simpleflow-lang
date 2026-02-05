@@ -25,6 +25,8 @@ public class Lexer {
         keywords.put("when", TokenType.WHEN);
         keywords.put("otherwise", TokenType.OTHERWISE);
         keywords.put("while", TokenType.WHILE);
+        keywords.put("for", TokenType.FOR);
+        keywords.put("loop", TokenType.FOR);
         keywords.put("exit", TokenType.EXIT);
         keywords.put("leave", TokenType.LEAVE);
         keywords.put("next", TokenType.NEXT);
@@ -60,6 +62,7 @@ public class Lexer {
             case '{' -> addToken(TokenType.LEFT_BRACE);
             case '}' -> addToken(TokenType.RIGHT_BRACE);
             case ',' -> addToken(TokenType.COMMA);
+            case ';' -> addToken(TokenType.SEMICOLON);
             case '+' -> addToken(TokenType.PLUS);
             case '-' -> addToken(TokenType.MINUS);
             case '*' -> addToken(TokenType.STAR);

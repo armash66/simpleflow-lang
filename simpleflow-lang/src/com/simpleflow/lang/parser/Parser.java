@@ -47,6 +47,7 @@ public class Parser {
         // control flow
         if (match(TokenType.WHEN)) return whenStatement();
         if (match(TokenType.WHILE)) return whileStatement();
+        if (match(TokenType.FOR)) return forStatement();
         if (match(TokenType.LEAVE)) return new Stmt.Leave();
         if (match(TokenType.NEXT)) return new Stmt.Next();
 
@@ -105,6 +106,98 @@ public class Parser {
 
         Stmt body = statement();
         return new Stmt.While(condition, body);
+    }
+
+    private Stmt forStatement() {
+        consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
+
+        Stmt initializer = null;
+        if (match(TokenType.SEMICOLON)) {
+            // no initializer
+        } else if (match(TokenType.SET)) {
+            initializer = setStatement();
+            consume(TokenType.SEMICOLON, "Expected ';' after initializer.");
+        } else if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
+            initializer = assignmentStatement();
+            consume(TokenType.SEMICOLON, "Expected ';' after initializer.");
+        } else {
+            throw error(peek(), "Expected initializer in for loop.");
+        }
+
+        Expr condition = null;
+        if (!check(TokenType.SEMICOLON)) {
+            condition = expression();
+        }
+        consume(TokenType.SEMICOLON, "Expected ';' after loop condition.");
+
+        Stmt increment = null;
+        if (!check(TokenType.RIGHT_PAREN)) {
+            if (match(TokenType.SET)) {
+                increment = setStatement();
+            } else if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
+                increment = assignmentStatement();
+            } else {
+                throw error(peek(), "Expected increment in for loop.");
+            }
+        }
+
+        consume(TokenType.RIGHT_PAREN, "Expected ')' after for clauses.");
+
+        Stmt body = statement();
+
+        if (increment != null) {
+            body = replaceNext(body, increment);
+            List<Stmt> statements = new ArrayList<>();
+            statements.add(body);
+            statements.add(increment);
+            body = new Stmt.Block(statements);
+        }
+
+        if (condition == null) {
+            condition = new Expr.Literal(true);
+        }
+
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null) {
+            List<Stmt> statements = new ArrayList<>();
+            statements.add(initializer);
+            statements.add(body);
+            body = new Stmt.Block(statements);
+        }
+
+        return body;
+    }
+
+    private Stmt replaceNext(Stmt stmt, Stmt increment) {
+        if (stmt instanceof Stmt.Next) {
+            List<Stmt> statements = new ArrayList<>();
+            statements.add(increment);
+            statements.add(stmt);
+            return new Stmt.Block(statements);
+        }
+
+        if (stmt instanceof Stmt.Block block) {
+            List<Stmt> statements = new ArrayList<>();
+            for (Stmt s : block.statements) {
+                statements.add(replaceNext(s, increment));
+            }
+            return new Stmt.Block(statements);
+        }
+
+        if (stmt instanceof Stmt.If ifStmt) {
+            Stmt thenBranch = replaceNext(ifStmt.thenBranch, increment);
+            Stmt elseBranch = ifStmt.elseBranch == null
+                ? null
+                : replaceNext(ifStmt.elseBranch, increment);
+            return new Stmt.If(ifStmt.condition, thenBranch, elseBranch);
+        }
+
+        if (stmt instanceof Stmt.While || stmt instanceof Stmt.Function) {
+            return stmt;
+        }
+
+        return stmt;
     }
 
     private Stmt functionStatement() {
