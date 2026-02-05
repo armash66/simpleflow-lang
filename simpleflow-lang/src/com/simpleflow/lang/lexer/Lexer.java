@@ -28,6 +28,9 @@ public class Lexer {
         keywords.put("exit", TokenType.EXIT);
         keywords.put("leave", TokenType.LEAVE);
         keywords.put("next", TokenType.NEXT);
+        keywords.put("and", TokenType.AND);
+        keywords.put("or", TokenType.OR);
+        keywords.put("not", TokenType.NOT);
         keywords.put("true", TokenType.TRUE);
         keywords.put("false", TokenType.FALSE);
         keywords.put("define", TokenType.DEFINE);

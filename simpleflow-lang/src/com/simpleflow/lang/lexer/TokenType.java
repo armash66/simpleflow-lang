@@ -19,6 +19,9 @@ public enum TokenType {
     IDENTIFIER, STRING, NUMBER,
 
     // Keywords
+    AND,
+    OR,
+    NOT,
     SET,
     SAY,
     SHOW,

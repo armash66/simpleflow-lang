@@ -1,17 +1,11 @@
 set x = 5
 
-while (x > 0) {
-  set x = x - 1
+when (not x) {
+  show "this will NOT print because x is truthy"
+}
 
-  when (x == 3) {
-    next
-  }
-
-  when (x == 1) {
-    leave
-  }
-
-  show x
+when (not (x == 0)) {
+  show "this WILL print"
 }
 
 exit

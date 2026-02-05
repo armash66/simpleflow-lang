@@ -152,7 +152,31 @@ public class Parser {
     // ---------------- EXPRESSIONS ----------------
 
     private Expr expression() {
-        return equality();
+        return or();
+    }
+
+    private Expr or() {
+        Expr expr = and();
+
+        while (match(TokenType.OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = equality();
+
+        while (match(TokenType.AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
     }
 
     private Expr equality() {
@@ -209,6 +233,11 @@ public class Parser {
     }
 
     private Expr unary() {
+        if (match(TokenType.NOT)) {
+            Token operator = previous();
+            Expr right = unary();
+            return new Expr.Unary(operator, right);
+        }
         return primary();
     }
 

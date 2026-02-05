@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.simpleflow.lang.ast.Expr;
 import com.simpleflow.lang.ast.Stmt;
+import com.simpleflow.lang.lexer.TokenType;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
@@ -177,6 +178,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Object visitUnaryExpr(Expr.Unary expr) {
+        Object right = evaluate(expr.right);
+
+        if (expr.operator.type == TokenType.NOT) {
+            return !isTruthy(right);
+        }
+
+        throw new RuntimeException("Unknown operator.");
+    }
+
+    @Override
     public Object visitCallExpr(Expr.Call expr) {
 
         Object callee = evaluate(expr.callee);
@@ -257,6 +269,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         } finally {
             environment = previous;
         }
+    }
+
+    @Override
+    public Object visitLogicalExpr(Expr.Logical expr) {
+        Object left = evaluate(expr.left);
+
+        if (expr.operator.type == TokenType.OR) {
+            if (isTruthy(left)) return true;
+        } else { // AND
+            if (!isTruthy(left)) return false;
+        }
+
+        Object right = evaluate(expr.right);
+        return isTruthy(right);
     }
 
     // ---------------- CONTROL FLOW ----------------

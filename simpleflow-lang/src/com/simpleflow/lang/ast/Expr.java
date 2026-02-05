@@ -8,6 +8,8 @@ public abstract class Expr {
 
     public interface Visitor<R> {
         R visitBinaryExpr(Binary expr);
+        R visitLogicalExpr(Logical expr);
+        R visitUnaryExpr(Unary expr);
         R visitLiteralExpr(Literal expr);
         R visitVariableExpr(Variable expr);
         R visitCallExpr(Call expr);
@@ -31,6 +33,38 @@ public abstract class Expr {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitBinaryExpr(this);
+        }
+    }
+
+    public static class Logical extends Expr {
+        public final Expr left;
+        public final Token operator;
+        public final Expr right;
+
+        public Logical(Expr left, Token operator, Expr right) {
+            this.left = left;
+            this.operator = operator;
+            this.right = right;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLogicalExpr(this);
+        }
+    }
+
+    public static class Unary extends Expr {
+        public final Token operator;
+        public final Expr right;
+
+        public Unary(Token operator, Expr right) {
+            this.operator = operator;
+            this.right = right;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitUnaryExpr(this);
         }
     }
 
