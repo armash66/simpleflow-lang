@@ -12,6 +12,7 @@ public abstract class Stmt {
         R visitIncDecStmt(IncDec stmt);
         R visitPutStmt(Put stmt);
         R visitPrintStmt(Print stmt);
+        R visitPrintInlineStmt(PrintInline stmt);
         R visitBlockStmt(Block stmt);
         R visitIfStmt(If stmt);
         R visitWhileStmt(While stmt);
@@ -72,6 +73,19 @@ public abstract class Stmt {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitPrintStmt(this);
+        }
+    }
+
+    public static class PrintInline extends Stmt {
+        public final Expr expression;
+
+        public PrintInline(Expr expression) {
+            this.expression = expression;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitPrintInlineStmt(this);
         }
     }
 

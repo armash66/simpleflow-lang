@@ -26,6 +26,7 @@ public enum TokenType {
     OR,
     NOT,
     STORE,
+    PRINT,
     SAY,
     SHOW,
     WHEN,

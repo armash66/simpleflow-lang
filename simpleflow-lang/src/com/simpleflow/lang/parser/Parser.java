@@ -47,6 +47,7 @@ public class Parser {
         }
 
         // output
+        if (match(TokenType.PRINT)) return printInlineStatement();
         if (match(TokenType.SAY)) return printStatement();
         if (match(TokenType.SHOW)) return printStatement();
 
@@ -104,6 +105,11 @@ public class Parser {
     private Stmt printStatement() {
         Expr value = expression();
         return new Stmt.Print(value);
+    }
+
+    private Stmt printInlineStatement() {
+        Expr value = expression();
+        return new Stmt.PrintInline(value);
     }
 
     private Stmt whenStatement() {

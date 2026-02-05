@@ -1,7 +1,2 @@
-store i = 0
-
-loop (store i = 0; i < 5; i++) {
-  show i
-}
-
-exit
+show "Hello,"
+show "world"

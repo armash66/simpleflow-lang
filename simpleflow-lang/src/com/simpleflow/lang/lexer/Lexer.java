@@ -20,6 +20,7 @@ public class Lexer {
     static {
         keywords = new HashMap<>();
         keywords.put("store", TokenType.STORE);
+        keywords.put("print", TokenType.PRINT);
         keywords.put("say", TokenType.SAY);
         keywords.put("show", TokenType.SHOW);
         keywords.put("when", TokenType.WHEN);

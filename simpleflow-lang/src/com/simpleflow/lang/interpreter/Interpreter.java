@@ -80,6 +80,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitPrintInlineStmt(Stmt.PrintInline stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.print(stringify(value));
+        return null;
+    }
+
+    @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
 
         if (inLoop) {
