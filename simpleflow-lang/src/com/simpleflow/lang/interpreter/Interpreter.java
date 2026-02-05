@@ -15,6 +15,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     // ---------------- ENTRY ----------------
 
+    public Interpreter() {
+        environment.define("length", new LengthFunction());
+    }
+
     public void interpret(List<Stmt> statements) {
         try {
             for (Stmt stmt : statements) {
@@ -126,7 +130,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        environment.define(stmt.name.lexeme, stmt);
+        environment.define(stmt.name.lexeme, new UserFunction(stmt, environment));
         return null;
     }
 
@@ -144,6 +148,27 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;
+    }
+
+    @Override
+    public Object visitCellLiteralExpr(Expr.CellLiteral expr) {
+        List<Object> values = new java.util.ArrayList<>();
+        for (Expr element : expr.elements) {
+            values.add(evaluate(element));
+        }
+        return new Cell(values);
+    }
+
+    @Override
+    public Object visitIndexExpr(Expr.Index expr) {
+        Object target = evaluate(expr.target);
+        Object index = evaluate(expr.index);
+
+        if (target instanceof Cell cell) {
+            return cell.get(index);
+        }
+
+        throw new RuntimeException("Can only index a cell.");
     }
 
     @Override
@@ -188,35 +213,23 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         Object callee = evaluate(expr.callee);
 
-        if (!(callee instanceof Stmt.Function function)) {
+        if (!(callee instanceof Callable function)) {
             throw new RuntimeException("Can only call functions.");
         }
 
-        if (expr.arguments.size() != function.params.size()) {
+        if (expr.arguments.size() != function.arity()) {
             throw new RuntimeException(
-                "Expected " + function.params.size() +
+                "Expected " + function.arity() +
                 " arguments but got " + expr.arguments.size()
             );
         }
 
-        Environment previous = environment;
-        environment = new Environment(previous);
-
-        for (int i = 0; i < function.params.size(); i++) {
-            String name = function.params.get(i).lexeme;
-            Object value = evaluate(expr.arguments.get(i));
-            environment.define(name, value);
+        List<Object> arguments = new java.util.ArrayList<>();
+        for (Expr argument : expr.arguments) {
+            arguments.add(evaluate(argument));
         }
 
-        try {
-            executeBlock(function.body, environment);
-        } catch (ReturnSignal returnValue) {
-            environment = previous;
-            return returnValue.value;
-        }
-
-        environment = previous;
-        return null;
+        return function.call(this, arguments);
     }
 
     @Override
@@ -238,6 +251,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             throw new RuntimeException("next used outside loop");
         }
         throw new NextSignal();
+    }
+
+    @Override
+    public Void visitIndexAssignStmt(Stmt.IndexAssign stmt) {
+        Object target = environment.get(stmt.name.lexeme);
+        if (!(target instanceof Cell cell)) {
+            throw new RuntimeException("Can only index-assign into a cell.");
+        }
+
+        Object index = evaluate(stmt.index);
+        Object value = evaluate(stmt.value);
+        cell.set(index, value);
+        return null;
     }
 
     // ---------------- HELPERS ----------------
@@ -288,6 +314,63 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         final Object value;
         ReturnSignal(Object value) {
             this.value = value;
+        }
+    }
+
+    private interface Callable {
+        int arity();
+        Object call(Interpreter interpreter, List<Object> arguments);
+    }
+
+    private static class UserFunction implements Callable {
+        private final Stmt.Function declaration;
+        private final Environment closure;
+
+        UserFunction(Stmt.Function declaration, Environment closure) {
+            this.declaration = declaration;
+            this.closure = closure;
+        }
+
+        @Override
+        public int arity() {
+            return declaration.params.size();
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Environment previous = interpreter.environment;
+            interpreter.environment = new Environment(closure);
+
+            for (int i = 0; i < declaration.params.size(); i++) {
+                String name = declaration.params.get(i).lexeme;
+                interpreter.environment.define(name, arguments.get(i));
+            }
+
+            try {
+                interpreter.executeBlock(declaration.body, interpreter.environment);
+            } catch (ReturnSignal returnValue) {
+                interpreter.environment = previous;
+                return returnValue.value;
+            }
+
+            interpreter.environment = previous;
+            return null;
+        }
+    }
+
+    private static class LengthFunction implements Callable {
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object value = arguments.get(0);
+            if (value instanceof Cell cell) {
+                return cell.length();
+            }
+            throw new RuntimeException("length() expects a cell.");
         }
     }
 }

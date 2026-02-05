@@ -10,6 +10,8 @@ public abstract class Expr {
         R visitBinaryExpr(Binary expr);
         R visitLogicalExpr(Logical expr);
         R visitUnaryExpr(Unary expr);
+        R visitCellLiteralExpr(CellLiteral expr);
+        R visitIndexExpr(Index expr);
         R visitLiteralExpr(Literal expr);
         R visitVariableExpr(Variable expr);
         R visitCallExpr(Call expr);
@@ -65,6 +67,34 @@ public abstract class Expr {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitUnaryExpr(this);
+        }
+    }
+
+    public static class CellLiteral extends Expr {
+        public final List<Expr> elements;
+
+        public CellLiteral(List<Expr> elements) {
+            this.elements = elements;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitCellLiteralExpr(this);
+        }
+    }
+
+    public static class Index extends Expr {
+        public final Expr target;
+        public final Expr index;
+
+        public Index(Expr target, Expr index) {
+            this.target = target;
+            this.index = index;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIndexExpr(this);
         }
     }
 

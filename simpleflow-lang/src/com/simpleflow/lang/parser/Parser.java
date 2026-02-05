@@ -35,6 +35,9 @@ public class Parser {
         // variable declaration
         if (match(TokenType.STORE)) return setStatement();
 
+        // index assignment (a[1] = expr)
+        if (isIndexAssignment()) return indexAssignmentStatement();
+
         // assignment (x = expr)
         if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
             return assignmentStatement();
@@ -77,6 +80,16 @@ public class Parser {
         consume(TokenType.EQUAL, "Expected '=' in assignment.");
         Expr value = expression();
         return new Stmt.Assign(name, value);
+    }
+
+    private Stmt indexAssignmentStatement() {
+        Token name = advance(); // IDENTIFIER
+        consume(TokenType.LEFT_BRACKET, "Expected '[' after identifier.");
+        Expr index = expression();
+        consume(TokenType.RIGHT_BRACKET, "Expected ']' after index.");
+        consume(TokenType.EQUAL, "Expected '=' in assignment.");
+        Expr value = expression();
+        return new Stmt.IndexAssign(name, index, value);
     }
 
     private Stmt printStatement() {
@@ -336,48 +349,95 @@ public class Parser {
 
     private Expr primary() {
         if (match(TokenType.NUMBER)) {
-            return new Expr.Literal(previous().literal);
+            return finishPostfix(new Expr.Literal(previous().literal));
         }
 
         if (match(TokenType.STRING)) {
-            return new Expr.Literal(previous().literal);
+            return finishPostfix(new Expr.Literal(previous().literal));
         }
 
         if (match(TokenType.IDENTIFIER)) {
             Expr expr = new Expr.Variable(previous());
-            return finishCall(expr);
+            return finishPostfix(expr);
+        }
+
+        if (match(TokenType.AT)) {
+            consume(TokenType.LEFT_PAREN, "Expected '(' after '@'.");
+            List<Expr> elements = new ArrayList<>();
+            if (!check(TokenType.RIGHT_PAREN)) {
+                do {
+                    elements.add(expression());
+                } while (match(TokenType.COMMA));
+            }
+            consume(TokenType.RIGHT_PAREN, "Expected ')' after elements.");
+            return finishPostfix(new Expr.CellLiteral(elements));
         }
 
         if (match(TokenType.LEFT_PAREN)) {
             Expr expr = expression();
             consume(TokenType.RIGHT_PAREN, "Expected ')'.");
-            return expr;
+            return finishPostfix(expr);
         }
 
         if (match(TokenType.TRUE)) {
-            return new Expr.Literal(true);
+            return finishPostfix(new Expr.Literal(true));
         }
 
         if (match(TokenType.FALSE)) {
-            return new Expr.Literal(false);
+            return finishPostfix(new Expr.Literal(false));
         }
 
         throw error(peek(), "Expected expression.");
     }
 
-    private Expr finishCall(Expr callee) {
-    if (!match(TokenType.LEFT_PAREN)) return callee;
+    private Expr finishPostfix(Expr expr) {
+        while (true) {
+            if (match(TokenType.LEFT_PAREN)) {
+                List<Expr> arguments = new ArrayList<>();
+                if (!check(TokenType.RIGHT_PAREN)) {
+                    do {
+                        arguments.add(expression());
+                    } while (match(TokenType.COMMA));
+                }
+                Token paren = consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments.");
+                expr = new Expr.Call(expr, paren, arguments);
+                continue;
+            }
 
-    List<Expr> arguments = new ArrayList<>();
-    if (!check(TokenType.RIGHT_PAREN)) {
-        do {
-            arguments.add(expression());
-        } while (match(TokenType.COMMA));
+            if (match(TokenType.LEFT_BRACKET)) {
+                Expr index = expression();
+                consume(TokenType.RIGHT_BRACKET, "Expected ']' after index.");
+                expr = new Expr.Index(expr, index);
+                continue;
+            }
+
+            break;
+        }
+
+        return expr;
     }
 
-    Token paren = consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments.");
-    return new Expr.Call(callee, paren, arguments);
-}
+    private boolean isIndexAssignment() {
+        if (!check(TokenType.IDENTIFIER)) return false;
+        if (current + 1 >= tokens.size()) return false;
+        if (tokens.get(current + 1).type != TokenType.LEFT_BRACKET) return false;
+
+        int depth = 0;
+        for (int i = current + 1; i < tokens.size(); i++) {
+            TokenType type = tokens.get(i).type;
+            if (type == TokenType.LEFT_BRACKET) depth++;
+            else if (type == TokenType.RIGHT_BRACKET) {
+                depth--;
+                if (depth == 0) {
+                    return i + 1 < tokens.size()
+                        && tokens.get(i + 1).type == TokenType.EQUAL;
+                }
+            } else if (type == TokenType.EOF) {
+                return false;
+            }
+        }
+        return false;
+    }
 
     // ---------------- HELPERS ----------------
 
