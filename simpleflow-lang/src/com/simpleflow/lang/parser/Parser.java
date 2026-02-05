@@ -38,6 +38,9 @@ public class Parser {
         // index assignment (a[1] = expr)
         if (isIndexAssignment()) return indexAssignmentStatement();
 
+        // increment/decrement (i++ / i--)
+        if (isIncDecStatement()) return incDecStatement();
+
         // assignment (x = expr)
         if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
             return assignmentStatement();
@@ -80,6 +83,12 @@ public class Parser {
         consume(TokenType.EQUAL, "Expected '=' in assignment.");
         Expr value = expression();
         return new Stmt.Assign(name, value);
+    }
+
+    private Stmt incDecStatement() {
+        Token name = advance(); // IDENTIFIER
+        Token op = advance(); // ++ or --
+        return new Stmt.IncDec(name, op);
     }
 
     private Stmt indexAssignmentStatement() {
@@ -147,6 +156,8 @@ public class Parser {
         if (!check(TokenType.RIGHT_PAREN)) {
             if (match(TokenType.STORE)) {
                 increment = setStatement();
+            } else if (isIncDecStatement()) {
+                increment = incDecStatement();
             } else if (check(TokenType.IDENTIFIER) && checkNext(TokenType.EQUAL)) {
                 increment = assignmentStatement();
             } else {
@@ -441,6 +452,13 @@ public class Parser {
             }
         }
         return false;
+    }
+
+    private boolean isIncDecStatement() {
+        if (!check(TokenType.IDENTIFIER)) return false;
+        if (current + 1 >= tokens.size()) return false;
+        TokenType next = tokens.get(current + 1).type;
+        return next == TokenType.PLUS_PLUS || next == TokenType.MINUS_MINUS;
     }
 
     // ---------------- HELPERS ----------------

@@ -1,22 +1,7 @@
-# ----------------------------
-# Null demo
-# ----------------------------
-store x = null
-store y = 10
+store i = 0
 
-show x == null
-show y == null
-show x == y
-
-when (x == null) {
-  show 1
-} otherwise {
-  show 0
+loop (store i = 0; i < 5; i++) {
+  show i
 }
-
-# null in cell
-store c = @(1, null, 3)
-show c[2]
-show c[2] == null
 
 exit

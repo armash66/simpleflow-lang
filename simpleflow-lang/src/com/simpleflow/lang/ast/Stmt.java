@@ -9,6 +9,7 @@ public abstract class Stmt {
     public interface Visitor<R> {
         R visitAssignStmt(Assign stmt);
         R visitIndexAssignStmt(IndexAssign stmt);
+        R visitIncDecStmt(IncDec stmt);
         R visitPutStmt(Put stmt);
         R visitPrintStmt(Print stmt);
         R visitBlockStmt(Block stmt);
@@ -180,6 +181,21 @@ public abstract class Stmt {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitIndexAssignStmt(this);
+        }
+    }
+
+    public static class IncDec extends Stmt {
+        public final Token name;
+        public final Token operator;
+
+        public IncDec(Token name, Token operator) {
+            this.name = name;
+            this.operator = operator;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIncDecStmt(this);
         }
     }
 }

@@ -67,8 +67,8 @@ public class Lexer {
             case ',' -> addToken(TokenType.COMMA);
             case '@' -> addToken(TokenType.AT);
             case ';' -> addToken(TokenType.SEMICOLON);
-            case '+' -> addToken(TokenType.PLUS);
-            case '-' -> addToken(TokenType.MINUS);
+            case '+' -> addToken(match('+') ? TokenType.PLUS_PLUS : TokenType.PLUS);
+            case '-' -> addToken(match('-') ? TokenType.MINUS_MINUS : TokenType.MINUS);
             case '*' -> addToken(TokenType.STAR);
             case '/' -> addToken(TokenType.SLASH);
             case '=' -> addToken(match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);

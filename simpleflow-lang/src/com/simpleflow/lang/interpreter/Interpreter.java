@@ -266,6 +266,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visitIncDecStmt(Stmt.IncDec stmt) {
+        Object value = environment.get(stmt.name.lexeme);
+        if (!(value instanceof Integer i)) {
+            throw new RuntimeException("Can only apply ++/-- to numbers.");
+        }
+
+        int updated = (stmt.operator.type == TokenType.PLUS_PLUS) ? i + 1 : i - 1;
+        environment.assign(stmt.name.lexeme, updated);
+        return null;
+    }
+
     // ---------------- HELPERS ----------------
 
     private boolean isTruthy(Object value) {
