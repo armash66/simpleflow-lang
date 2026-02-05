@@ -35,6 +35,7 @@ public class Lexer {
         keywords.put("not", TokenType.NOT);
         keywords.put("true", TokenType.TRUE);
         keywords.put("false", TokenType.FALSE);
+        keywords.put("null", TokenType.NULL);
         keywords.put("define", TokenType.DEFINE);
         keywords.put("return", TokenType.RETURN);
     }

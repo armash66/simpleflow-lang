@@ -1,52 +1,8 @@
-
-3️⃣ else if equivalent (without syntax hell)
-
-Since you already chose when / otherwise:
-
-when (x > 10) {
-  show "big"
-} otherwise when (x > 5) {
-  show "medium"
-} otherwise {
-  show "small"
-}
-
-
-This is zero new syntax, just parser chaining.
-
-⚙️ Tier 2 — Strong language ergonomics
-4️⃣ for loop (desugared to while)
-
-Classic C-style:
-
-for (set i = 0; i < 5; i = i + 1) {
-  show i
-}
-
-
-Internally:
-
-Parser converts it to a while
-
-Interpreter doesn’t even know it exists
-
-Very compiler-ish, very cool.
-
-5️⃣ Arrays / Lists
-
-You need collections.
-
-set a = [1, 2, 3]
-show a[0]
-
-
-Minimum viable:
-
-literal [ ]
-
-index access
-
-length
+1️⃣ foreach (v in c)
+2️⃣ delete c[key]
+3️⃣ nested cells
+4️⃣ truthy checks like if (c)
+5️⃣ standard library (push, pop, keys)
 
 🧪 Tier 3 — Language personality
 6️⃣ null

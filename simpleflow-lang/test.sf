@@ -1,21 +1,22 @@
 # ----------------------------
-# Cell (single structure) demo
+# Null demo
 # ----------------------------
-store c = @(1, 2, 3)
-show c[1]
-show length(c)
+store x = null
+store y = 10
 
-c[2] = 99
-show c[2]
+show x == null
+show y == null
+show x == y
 
-c["name"] = "mylang"
-show c["name"]
-
-# ----------------------------
-# Loop with cell
-# ----------------------------
-loop (store i = 1; i <= length(c); i = i + 1) {
-  show c[i]
+when (x == null) {
+  show 1
+} otherwise {
+  show 0
 }
+
+# null in cell
+store c = @(1, null, 3)
+show c[2]
+show c[2] == null
 
 exit

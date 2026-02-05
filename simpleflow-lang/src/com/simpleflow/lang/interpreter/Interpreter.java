@@ -191,7 +191,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             case GREATER_EQUAL -> (int) left >= (int) right;
             case LESS -> (int) left < (int) right;
             case LESS_EQUAL -> (int) left <= (int) right;
-            case EQUAL_EQUAL -> left.equals(right);
+            case EQUAL_EQUAL -> java.util.Objects.equals(left, right);
 
             default -> throw new RuntimeException("Unknown operator.");
         };

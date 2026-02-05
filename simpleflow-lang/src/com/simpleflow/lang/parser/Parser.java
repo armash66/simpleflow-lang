@@ -387,6 +387,10 @@ public class Parser {
             return finishPostfix(new Expr.Literal(false));
         }
 
+        if (match(TokenType.NULL)) {
+            return finishPostfix(new Expr.Literal(null));
+        }
+
         throw error(peek(), "Expected expression.");
     }
 

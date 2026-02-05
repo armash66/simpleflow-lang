@@ -36,6 +36,7 @@ public enum TokenType {
     NEXT,
     TRUE,
     FALSE,
+    NULL,
     DEFINE,
     RETURN,
 
