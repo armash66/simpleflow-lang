@@ -1,2 +1,86 @@
-show "Hello,"
-show "world"
+# ----------------------------
+# Variables + print/show
+# ----------------------------
+store a = 10
+store b = 3
+print "a+b="
+show a + b
+
+# ----------------------------
+# Arithmetic + comparisons
+# ----------------------------
+show a - b
+show a * b
+show a / b
+show a > b
+show a == b
+show a < b
+
+# ----------------------------
+# Logical ops + when/otherwise chain
+# ----------------------------
+when (a > 10) {
+  show "big"
+} otherwise when (a > 5 and b < 5) {
+  show "medium"
+} otherwise {
+  show "small"
+}
+
+# ----------------------------
+# while + leave/next
+# ----------------------------
+store x = 5
+while (x > 0) {
+  x--
+  when (x == 3) { next }
+  when (x == 1) { leave }
+  show x
+}
+
+# ----------------------------
+# loop (for-style) + ++
+# ----------------------------
+loop (store i = 1; i <= 5; i++) {
+  show i
+}
+
+# ----------------------------
+# Functions + return
+# ----------------------------
+define square(n) {
+  return n * n
+}
+define sum(p, q) {
+  return p + q
+}
+show square(4)
+show sum(7, 5)
+
+# ----------------------------
+# Cell (single structure) + indexing + length
+# ----------------------------
+store c = @(1, 2, null, 4)
+show c[1]
+show length(c)
+c[2] = 99
+show c[2]
+c["name"] = "mylang"
+show c["name"]
+
+# loop through cell
+loop (store j = 1; j <= length(c); j++) {
+  show c[j]
+}
+
+# ----------------------------
+# null comparisons
+# ----------------------------
+store n = null
+show n == null
+show c[3] == null
+
+# ----------------------------
+# exit
+# ----------------------------
+exit

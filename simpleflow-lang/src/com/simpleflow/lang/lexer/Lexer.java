@@ -19,24 +19,20 @@ public class Lexer {
 
     static {
         keywords = new HashMap<>();
-        keywords.put("store", TokenType.STORE);
-        keywords.put("print", TokenType.PRINT);
+        keywords.put("set", TokenType.SET);
         keywords.put("say", TokenType.SAY);
         keywords.put("show", TokenType.SHOW);
-        keywords.put("when", TokenType.WHEN);
-        keywords.put("otherwise", TokenType.OTHERWISE);
-        keywords.put("while", TokenType.WHILE);
-        keywords.put("for", TokenType.FOR);
-        keywords.put("loop", TokenType.FOR);
-        keywords.put("exit", TokenType.EXIT);
-        keywords.put("leave", TokenType.LEAVE);
-        keywords.put("next", TokenType.NEXT);
         keywords.put("and", TokenType.AND);
         keywords.put("or", TokenType.OR);
         keywords.put("not", TokenType.NOT);
+        keywords.put("when", TokenType.WHEN);
+        keywords.put("otherwise", TokenType.OTHERWISE);
+        keywords.put("while", TokenType.WHILE);
+        keywords.put("exit", TokenType.EXIT);
+        keywords.put("leave", TokenType.LEAVE);
+        keywords.put("next", TokenType.NEXT);
         keywords.put("true", TokenType.TRUE);
         keywords.put("false", TokenType.FALSE);
-        keywords.put("null", TokenType.NULL);
         keywords.put("define", TokenType.DEFINE);
         keywords.put("return", TokenType.RETURN);
     }
@@ -63,13 +59,9 @@ public class Lexer {
             case ')' -> addToken(TokenType.RIGHT_PAREN);
             case '{' -> addToken(TokenType.LEFT_BRACE);
             case '}' -> addToken(TokenType.RIGHT_BRACE);
-            case '[' -> addToken(TokenType.LEFT_BRACKET);
-            case ']' -> addToken(TokenType.RIGHT_BRACKET);
             case ',' -> addToken(TokenType.COMMA);
-            case '@' -> addToken(TokenType.AT);
-            case ';' -> addToken(TokenType.SEMICOLON);
-            case '+' -> addToken(match('+') ? TokenType.PLUS_PLUS : TokenType.PLUS);
-            case '-' -> addToken(match('-') ? TokenType.MINUS_MINUS : TokenType.MINUS);
+            case '+' -> addToken(TokenType.PLUS);
+            case '-' -> addToken(TokenType.MINUS);
             case '*' -> addToken(TokenType.STAR);
             case '/' -> addToken(TokenType.SLASH);
             case '=' -> addToken(match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);

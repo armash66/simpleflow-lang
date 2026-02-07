@@ -1,259 +1,183 @@
 # SimpleFlow
 
 **SimpleFlow** is a minimal interpreted programming language built from scratch in **Java**.  
-It implements a complete interpreter pipeline — **lexer, parser, AST, and interpreter** —  
-designed to help learners understand how programming languages work internally.
-
-The language uses **simple English-based keywords** to keep syntax readable while staying  
-distinct from mainstream languages.
+It includes a full interpreter pipeline — **lexer, parser, AST, and interpreter** — and uses
+English-like keywords to keep syntax readable.
 
 ---
 
-## ✨ Features
+## Features
 
-- Variable declaration and assignment  
-- Arithmetic expressions  
-- Conditional execution  
-- Loops  
-- Block scoping  
-- Boolean values (`true`, `false`)  
-- User-defined functions with parameters and return values  
-- File-based execution  
-- Runtime interpretation  
+- Variables via `store`
+- Arithmetic and comparisons
+- Logical operators: `and`, `or`, `not`
+- Conditionals: `when` / `otherwise` (chained `else if` style)
+- Loops: `while` and `loop` (C-style `for` desugared to `while`)
+- Loop control: `next` (continue), `leave` (break)
+- Functions with parameters and `return`
+- `print` (no newline) and `show` (newline) output
+- `null` literal + null-safe `==`
+- Single data structure **cell**:
+  - literal `@(1, 2, 3)`
+  - 1-based indexing `c[1]`
+  - index assignment `c[2] = 99`
+  - mixed keys `c["name"] = "mylang"`
+  - `length(cell)`
+- `++` / `--` postfix increment/decrement
+- File-based execution
 
 ---
 
-## 🔑 Language Syntax
+## Language Syntax
 
-### Variable Declaration
-```bash
-set x = 10
+### Variables
+```sf
+store x = 10
+x = x + 1
 ```
 
 ### Output
-```bash
-say "hello"
-show x
+```sf
+print "Hello, "
+show "world"
 ```
 
-### Conditional
-```bash
-when (x > 5) {
-    say "greater"
+### Conditionals
+```sf
+when (x > 10) {
+  show "big"
+} otherwise when (x > 5) {
+  show "medium"
 } otherwise {
-    say "smaller"
+  show "small"
 }
 ```
 
-### Loop
-```bash
+### While Loop
+```sf
+store x = 3
 while (x > 0) {
-    show x
-    x = x - 1
+  show x
+  x--
+}
+```
+
+### Loop (for-style)
+```sf
+loop (store i = 1; i <= 5; i++) {
+  show i
+}
+```
+
+### Loop Control
+```sf
+while (true) {
+  next
+  leave
 }
 ```
 
 ### Functions
-```bash
+```sf
 define add(a, b) {
-    return a + b
+  return a + b
 }
 
-set result = add(2, 3)
-show result
+show add(2, 3)
 ```
 
-### End Program
-```bash
-exit
+### Null
+```sf
+store x = null
+show x == null
 ```
 
-### 🧠 Example Program
-```bash
-define countdown(n) {
-    while (n > 0) {
-        show n
-        n = n - 1
-    }
-    return n
-}
+### Cell (single structure)
+```sf
+store c = @(1, 2, 3)
+show c[1]
+show length(c)
 
-set final = countdown(3)
+c[2] = 99
+c["name"] = "mylang"
+show c["name"]
+```
 
-when (final == 0) {
-    say "finished"
+---
+
+## Example Program
+
+```sf
+store a = 10
+store b = 3
+
+print "a+b="
+show a + b
+
+when (a > 10) {
+  show "big"
+} otherwise when (a > 5 and b < 5) {
+  show "medium"
 } otherwise {
-    say "error"
+  show "small"
 }
+
+loop (store i = 1; i <= 3; i++) {
+  show i
+}
+
+store c = @(1, 2, null, 4)
+show c[2] == null
 
 exit
 ```
 
-### Output
-3
-2
-1
-finished
+---
 
---- 
+## Running
 
-## 🏗️ Project Architecture
-
-SimpleFlow follows a classic interpreter pipeline:
-
-Source Code
-     ↓
-Lexer        → Tokens
-     ↓
-Parser       → AST
-     ↓
-Interpreter → Execution
-
---- 
-
-## 📁 Directory Structure
-src/
-
- ├── lexer/         // Tokenization logic
-
- ├── parser/        // Grammar & parsing
-
- ├── ast/           // Expression & statement nodes
-
- ├── interpreter/   // Runtime execution engine
-
- └── Main.java      // Program entry point
-
---- 
-
-## 🚀 Running the Project
-
-### Compile
-```bash
-javac -d out src/Main.java src/lexer/*.java src/parser/*.java src/ast/*.java src/interpreter/*.java
-```
-### Run
-```bash
-java -cp out Main program.sf
-```
-
---- 
-
-## 🧪 After Running the Project
-
-Once the program runs successfully, the SimpleFlow interpreter executes the source file
-line by line and prints output directly to the terminal.
-
-### What Happens Internally
-
-When you run:
+From `simpleflow-lang`:
 
 ```bash
-java -cp out Main program.sf
+javac -d out (Get-ChildItem -Recurse -Filter *.java | ForEach-Object FullName)
+java -cp out com.simpleflow.lang.Main test.sf
 ```
-
-### Execution Flow
-
-SimpleFlow performs the following steps when a program is run:
-
-1. Reads the source file (`program.sf`) as plain text  
-2. Tokenizes the code using the lexer  
-3. Parses tokens into an Abstract Syntax Tree (AST)  
-4. Interprets the AST, executing statements in order  
-5. Prints output or errors to the terminal  
-
-This process closely mimics how real programming languages execute code internally.
-
---- 
-
-## 📝 Writing Your Own Programs
-
-You can create and run your own .sf files.
-
-Example:
-```bash
-set a = 5
-set b = 10
-
-define multiply(x, y) {
-    return x * y
-}
-
-show multiply(a, b)
-exit
-```
-
-### Save the file (for example, test.sf) and run:
-```bash
-java -cp out Main test.sf
-```
-
---- 
-
-## ⚠️ Error Handling
-
-SimpleFlow reports runtime and syntax errors with line numbers to help with debugging.
-
-### Examples of Errors
-- Using an undefined variable  
-- Calling a function with the wrong number of arguments  
-- Invalid syntax or unexpected tokens  
-
-Error messages are intentionally simple and designed for learning purposes.
 
 ---
 
-## 🧠 Learning Tips
+## Project Structure
 
-To better understand how the language works, try the following:
-
-- Modify the lexer to add new keywords  
-- Extend the parser with new grammar rules  
-- Add new AST nodes for new features  
-- Enhance the interpreter to support new behaviors  
-
-SimpleFlow is designed to be **read, modified, and experimented with**.  
-Breaking things is part of the learning process.
-
----
-
-## 📂 Recommended Experiments
-
-- Add a new keyword (e.g., `repeat_until`)  
-- Implement logical operators (`and`, `or`)  
-- Add string concatenation  
-- Create a standard library file  
-- Build a REPL (interactive mode)  
-
-Each experiment helps deepen understanding of language design.
-
---- 
-
-## 🎯 Purpose
-
-This project was built as a **learning-focused interpreter implementation** to understand:
-
-- Language grammar design  
-- Recursive-descent parsing  
-- Abstract Syntax Tree (AST) construction  
-- Runtime interpretation  
-- Variable scoping and environments  
-- Function calls and return mechanics  
-
-It is intentionally minimal and **not intended for production use**.
+```
+simpleflow-lang/
+  Main.java
+  src/com/simpleflow/lang/
+    lexer/
+    parser/
+    ast/
+    interpreter/
+```
 
 ---
 
-## 📌 Future Improvements
+## Error Handling
 
-- Better error messages with source highlighting  
-- More data types (floats, string operations)  
-- Standard library functions  
-- REPL (interactive mode)  
-- Packaging as a runnable JAR  
+SimpleFlow reports syntax and runtime errors with line/column info where possible:
+
+- Unexpected tokens / invalid syntax
+- Undefined variables
+- Wrong function arity
+- Invalid operations (e.g., indexing non-cell)
 
 ---
 
-## 📜 License
+## Notes
 
-This project is intended for **educational and experimental purposes**.
+- `show` is for developer inspection (newline).
+- `print` / `say` are for user output (no newline).
+- Indexing is **1-based**: `c[1]` is the first element.
+
+---
+
+## License
+
+Educational and experimental use only.

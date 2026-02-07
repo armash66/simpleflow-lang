@@ -4,22 +4,6 @@
 4️⃣ truthy checks like if (c)
 5️⃣ standard library (push, pop, keys)
 
-🧪 Tier 3 — Language personality
-6️⃣ null
-
-Right now everything exists or crashes.
-
-Add:
-
-set x = null
-
-
-Then:
-
-null comparisons
-
-safer APIs later
-
 7️⃣ print vs show
 
 Right now show does everything.
