@@ -10,6 +10,7 @@ public enum TokenType {
     MINUS, PLUS,
     SEMICOLON, SLASH, STAR,
     AT,
+    QUESTION, COLON,
 
     // One or two character tokens
     BANG, BANG_EQUAL,
@@ -41,6 +42,8 @@ public enum TokenType {
     NULL,
     DEFINE,
     RETURN,
+    INCLUDE,
+    IMPORT,
 
     // End of file
     EOF

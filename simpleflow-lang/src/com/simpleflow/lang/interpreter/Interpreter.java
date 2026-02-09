@@ -2,11 +2,18 @@ package com.simpleflow.lang.interpreter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
 
 import com.simpleflow.lang.ast.Expr;
 import com.simpleflow.lang.ast.Stmt;
+import com.simpleflow.lang.lexer.Lexer;
 import com.simpleflow.lang.lexer.TokenType;
+import com.simpleflow.lang.parser.ParseError;
+import com.simpleflow.lang.parser.Parser;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
@@ -17,6 +24,22 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     public Interpreter() {
         environment.define("length", new LengthFunction());
+        environment.define("input", new InputFunction());
+        environment.define("random", new RandomFunction());
+        environment.define("clock", new ClockFunction());
+        environment.define("type", new TypeFunction());
+        environment.define("toNumber", new ToNumberFunction());
+        environment.define("toString", new ToStringFunction());
+        environment.define("push", new PushFunction());
+        environment.define("pop", new PopFunction());
+        environment.define("shift", new ShiftFunction());
+        environment.define("unshift", new UnshiftFunction());
+        environment.define("keys", new KeysFunction());
+        environment.define("values", new ValuesFunction());
+        environment.define("has", new HasFunction());
+        environment.define("slice", new SliceFunction());
+        environment.define("merge", new MergeFunction());
+        environment.define("assert", new AssertFunction());
     }
 
     public void interpret(List<Stmt> statements) {
@@ -45,6 +68,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 .toString()
                 .replace("\r\n", "\n")
                 .trim();
+    }
+
+    public void interpretSource(String source) {
+        try {
+            Lexer lexer = new Lexer(source);
+            Parser parser = new Parser(lexer.scanTokens());
+            List<Stmt> statements = parser.parse();
+            interpret(statements);
+        } catch (ParseError e) {
+            throw new RuntimeException(
+                "Parse error at line " + e.line + ", column " + e.column + ": " + e.getMessage()
+            );
+        }
     }
 
     private void execute(Stmt stmt) {
@@ -83,6 +119,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitPrintInlineStmt(Stmt.PrintInline stmt) {
         Object value = evaluate(stmt.expression);
         System.out.print(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
         return null;
     }
 
@@ -150,6 +192,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         throw new ReturnSignal(value);
     }
 
+    @Override
+    public Void visitIncludeStmt(Stmt.Include stmt) {
+        try {
+            String source = Files.readString(Path.of(stmt.path));
+            interpretSource(source);
+        } catch (Exception e) {
+            throw new RuntimeException("include failed: " + e.getMessage());
+        }
+        return null;
+    }
+
     // ---------------- EXPRESSIONS ----------------
 
     @Override
@@ -199,6 +252,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             case LESS -> (int) left < (int) right;
             case LESS_EQUAL -> (int) left <= (int) right;
             case EQUAL_EQUAL -> java.util.Objects.equals(left, right);
+            case BANG_EQUAL -> !java.util.Objects.equals(left, right);
 
             default -> throw new RuntimeException("Unknown operator.");
         };
@@ -213,6 +267,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
 
         throw new RuntimeException("Unknown operator.");
+    }
+
+    @Override
+    public Object visitTernaryExpr(Expr.Ternary expr) {
+        Object condition = evaluate(expr.condition);
+        if (isTruthy(condition)) {
+            return evaluate(expr.thenBranch);
+        }
+        return evaluate(expr.elseBranch);
     }
 
     @Override
@@ -262,7 +325,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitIndexAssignStmt(Stmt.IndexAssign stmt) {
-        Object target = environment.get(stmt.name.lexeme);
+        Object target = evaluate(stmt.target);
         if (!(target instanceof Cell cell)) {
             throw new RuntimeException("Can only index-assign into a cell.");
         }
@@ -390,6 +453,283 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 return cell.length();
             }
             throw new RuntimeException("length() expects a cell.");
+        }
+    }
+
+    private static class InputFunction implements Callable {
+        private final Scanner scanner = new Scanner(System.in);
+
+        @Override
+        public int arity() {
+            return 0;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            try {
+                if (scanner.hasNextLine()) {
+                    return scanner.nextLine();
+                }
+            } catch (Exception ignored) {
+            }
+            return "";
+        }
+    }
+
+    private static class RandomFunction implements Callable {
+        private final Random random = new Random();
+
+        @Override
+        public int arity() {
+            return 2;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object a = arguments.get(0);
+            Object b = arguments.get(1);
+            if (!(a instanceof Integer) || !(b instanceof Integer)) {
+                throw new RuntimeException("random(min, max) expects numbers.");
+            }
+            int min = (Integer) a;
+            int max = (Integer) b;
+            if (max < min) {
+                int tmp = min;
+                min = max;
+                max = tmp;
+            }
+            return min + random.nextInt(max - min + 1);
+        }
+    }
+
+    private static class ClockFunction implements Callable {
+        @Override
+        public int arity() {
+            return 0;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            return (int) (System.currentTimeMillis() / 1000);
+        }
+    }
+
+    private static class TypeFunction implements Callable {
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object value = arguments.get(0);
+            if (value == null) return "null";
+            if (value instanceof Integer) return "number";
+            if (value instanceof String) return "string";
+            if (value instanceof Boolean) return "boolean";
+            if (value instanceof Cell) return "cell";
+            if (value instanceof Callable) return "function";
+            return "unknown";
+        }
+    }
+
+    private static class ToNumberFunction implements Callable {
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object value = arguments.get(0);
+            if (value instanceof Integer) return value;
+            if (value instanceof Boolean b) return b ? 1 : 0;
+            if (value instanceof String s) {
+                try {
+                    return Integer.parseInt(s.trim());
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("toNumber() invalid string.");
+                }
+            }
+            throw new RuntimeException("toNumber() expects number/string/bool.");
+        }
+    }
+
+    private static class ToStringFunction implements Callable {
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            return interpreter.stringify(arguments.get(0));
+        }
+    }
+
+    private static class PushFunction implements Callable {
+        @Override
+        public int arity() {
+            return 2;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object target = arguments.get(0);
+            if (!(target instanceof Cell cell)) {
+                throw new RuntimeException("push() expects a cell.");
+            }
+            cell.push(arguments.get(1));
+            return cell;
+        }
+    }
+
+    private static class PopFunction implements Callable {
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object target = arguments.get(0);
+            if (!(target instanceof Cell cell)) {
+                throw new RuntimeException("pop() expects a cell.");
+            }
+            return cell.pop();
+        }
+    }
+
+    private static class ShiftFunction implements Callable {
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object target = arguments.get(0);
+            if (!(target instanceof Cell cell)) {
+                throw new RuntimeException("shift() expects a cell.");
+            }
+            return cell.shift();
+        }
+    }
+
+    private static class UnshiftFunction implements Callable {
+        @Override
+        public int arity() {
+            return 2;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object target = arguments.get(0);
+            if (!(target instanceof Cell cell)) {
+                throw new RuntimeException("unshift() expects a cell.");
+            }
+            cell.unshift(arguments.get(1));
+            return cell;
+        }
+    }
+
+    private static class KeysFunction implements Callable {
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object target = arguments.get(0);
+            if (!(target instanceof Cell cell)) {
+                throw new RuntimeException("keys() expects a cell.");
+            }
+            return cell.keys();
+        }
+    }
+
+    private static class ValuesFunction implements Callable {
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object target = arguments.get(0);
+            if (!(target instanceof Cell cell)) {
+                throw new RuntimeException("values() expects a cell.");
+            }
+            return cell.values();
+        }
+    }
+
+    private static class HasFunction implements Callable {
+        @Override
+        public int arity() {
+            return 2;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object target = arguments.get(0);
+            if (!(target instanceof Cell cell)) {
+                throw new RuntimeException("has() expects a cell.");
+            }
+            return cell.has(arguments.get(1));
+        }
+    }
+
+    private static class SliceFunction implements Callable {
+        @Override
+        public int arity() {
+            return 3;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object target = arguments.get(0);
+            if (!(target instanceof Cell cell)) {
+                throw new RuntimeException("slice() expects a cell.");
+            }
+            if (!(arguments.get(1) instanceof Integer start) ||
+                !(arguments.get(2) instanceof Integer end)) {
+                throw new RuntimeException("slice() expects start/end numbers.");
+            }
+            return cell.slice(start, end);
+        }
+    }
+
+    private static class MergeFunction implements Callable {
+        @Override
+        public int arity() {
+            return 2;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            if (!(arguments.get(0) instanceof Cell a) || !(arguments.get(1) instanceof Cell b)) {
+                throw new RuntimeException("merge() expects two cells.");
+            }
+            return a.merge(b);
+        }
+    }
+
+    private static class AssertFunction implements Callable {
+        @Override
+        public int arity() {
+            return 2;
+        }
+
+        @Override
+        public Object call(Interpreter interpreter, List<Object> arguments) {
+            Object condition = arguments.get(0);
+            Object message = arguments.get(1);
+            if (!interpreter.isTruthy(condition)) {
+                throw new RuntimeException("assert failed: " + interpreter.stringify(message));
+            }
+            return null;
         }
     }
 }

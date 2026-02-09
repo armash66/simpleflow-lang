@@ -40,6 +40,8 @@ public class Lexer {
         keywords.put("null", TokenType.NULL);
         keywords.put("define", TokenType.DEFINE);
         keywords.put("return", TokenType.RETURN);
+        keywords.put("include", TokenType.INCLUDE);
+        keywords.put("import", TokenType.IMPORT);
     }
 
     public Lexer(String source) {
@@ -68,6 +70,8 @@ public class Lexer {
             case ']' -> addToken(TokenType.RIGHT_BRACKET);
             case ',' -> addToken(TokenType.COMMA);
             case '.' -> addToken(TokenType.DOT);
+            case '?' -> addToken(TokenType.QUESTION);
+            case ':' -> addToken(TokenType.COLON);
             case '+' -> addToken(match('+') ? TokenType.PLUS_PLUS : TokenType.PLUS);
             case '-' -> addToken(match('-') ? TokenType.MINUS_MINUS : TokenType.MINUS);
             case '*' -> addToken(TokenType.STAR);
@@ -84,7 +88,15 @@ public class Lexer {
                 while (peek() != '\n' && !isAtEnd()) advance();
             }
 
-            case '"' -> string();
+            case '"' -> {
+                if (peek() == '"' && peekNext() == '"') {
+                    advance();
+                    advance();
+                    multiLineString();
+                } else {
+                    string();
+                }
+            }
             case ' ', '\r', '\t' -> {
                 // ignore whitespace
             }
@@ -142,6 +154,26 @@ public class Lexer {
         addToken(TokenType.STRING, value);
     }
 
+    private void multiLineString() {
+        while (!isAtEnd()) {
+            if (peek() == '"' && peekNext() == '"' && peekThird() == '"') {
+                advance();
+                advance();
+                advance();
+                String value = source.substring(start + 3, current - 3);
+                addToken(TokenType.STRING, value);
+                return;
+            }
+            if (peek() == '\n') {
+                line++;
+                column = 1;
+            }
+            advance();
+        }
+
+        System.err.println("Unterminated multi-line string at line " + line);
+    }
+
     private boolean match(char expected) {
         if (isAtEnd()) return false;
         if (source.charAt(current) != expected) return false;
@@ -152,6 +184,16 @@ public class Lexer {
     private char peek() {
         if (isAtEnd()) return '\0';
         return source.charAt(current);
+    }
+
+    private char peekNext() {
+        if (current + 1 >= source.length()) return '\0';
+        return source.charAt(current + 1);
+    }
+
+    private char peekThird() {
+        if (current + 2 >= source.length()) return '\0';
+        return source.charAt(current + 2);
     }
 
     private boolean isAtEnd() {

@@ -54,6 +54,66 @@ public class Cell {
         return list.size();
     }
 
+    public void push(Object value) {
+        list.add(value);
+    }
+
+    public Object pop() {
+        if (list.isEmpty()) return null;
+        return list.remove(list.size() - 1);
+    }
+
+    public Object shift() {
+        if (list.isEmpty()) return null;
+        return list.remove(0);
+    }
+
+    public void unshift(Object value) {
+        list.add(0, value);
+    }
+
+    public boolean has(Object key) {
+        if (key instanceof Integer i) {
+            return i > 0 && i <= list.size();
+        }
+        return map.containsKey(key);
+    }
+
+    public Cell keys() {
+        return new Cell(new ArrayList<>(map.keySet()));
+    }
+
+    public Cell values() {
+        return new Cell(new ArrayList<>(map.values()));
+    }
+
+    public Cell slice(int start, int end) {
+        int s = Math.max(1, start);
+        int e = Math.min(end, list.size());
+        List<Object> out = new ArrayList<>();
+        for (int i = s; i <= e; i++) {
+            out.add(list.get(i - 1));
+        }
+        return new Cell(out);
+    }
+
+    public Cell merge(Cell other) {
+        List<Object> mergedList = new ArrayList<>(this.list);
+        mergedList.addAll(other.list);
+        Cell merged = new Cell(mergedList);
+        merged.map.putAll(this.map);
+        merged.map.putAll(other.map);
+        return merged;
+    }
+
+    public List<Object> listSnapshot() {
+        return new ArrayList<>(list);
+    }
+
+    public Map<Object, Object> mapSnapshot() {
+        return new HashMap<>(map);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -63,13 +63,15 @@ public class Parser {
 
         if (match(TokenType.DEFINE)) return functionStatement();
         if (match(TokenType.RETURN)) return returnStatement();
+        if (match(TokenType.INCLUDE, TokenType.IMPORT)) return includeStatement();
 
         // block
         if (match(TokenType.LEFT_BRACE)) {
             return new Stmt.Block(block());
         }
 
-        throw error(peek(), "Expected statement.");
+        Expr expr = expression();
+        return new Stmt.Expression(expr);
     }
 
     private Stmt setStatement() {
@@ -97,9 +99,16 @@ public class Parser {
         consume(TokenType.LEFT_BRACKET, "Expected '[' after identifier.");
         Expr index = expression();
         consume(TokenType.RIGHT_BRACKET, "Expected ']' after index.");
+        Expr target = new Expr.Variable(name);
+        while (match(TokenType.LEFT_BRACKET)) {
+            Expr nextIndex = expression();
+            consume(TokenType.RIGHT_BRACKET, "Expected ']' after index.");
+            target = new Expr.Index(target, index);
+            index = nextIndex;
+        }
         consume(TokenType.EQUAL, "Expected '=' in assignment.");
         Expr value = expression();
-        return new Stmt.IndexAssign(name, index, value);
+        return new Stmt.IndexAssign(target, index, value);
     }
 
     private Stmt printStatement() {
@@ -261,6 +270,12 @@ public class Parser {
         return new Stmt.Return(keyword, value);
     }
 
+    private Stmt includeStatement() {
+        Token keyword = previous();
+        Token path = consume(TokenType.STRING, "Expected file path string after include/import.");
+        return new Stmt.Include(keyword, (String) path.literal);
+    }
+
     private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
 
@@ -275,7 +290,20 @@ public class Parser {
     // ---------------- EXPRESSIONS ----------------
 
     private Expr expression() {
-        return or();
+        return ternary();
+    }
+
+    private Expr ternary() {
+        Expr expr = or();
+
+        if (match(TokenType.QUESTION)) {
+            Expr thenBranch = expression();
+            consume(TokenType.COLON, "Expected ':' in ternary expression.");
+            Expr elseBranch = expression();
+            return new Expr.Ternary(expr, thenBranch, elseBranch);
+        }
+
+        return expr;
     }
 
     private Expr or() {
@@ -305,7 +333,7 @@ public class Parser {
     private Expr equality() {
         Expr expr = comparison();
 
-        while (match(TokenType.EQUAL_EQUAL)) {
+        while (match(TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL)) {
             Token operator = previous();
             Expr right = comparison();
             expr = new Expr.Binary(expr, operator, right);
@@ -450,8 +478,13 @@ public class Parser {
             else if (type == TokenType.RIGHT_BRACKET) {
                 depth--;
                 if (depth == 0) {
-                    return i + 1 < tokens.size()
-                        && tokens.get(i + 1).type == TokenType.EQUAL;
+                    if (i + 1 >= tokens.size()) return false;
+                    TokenType next = tokens.get(i + 1).type;
+                    if (next == TokenType.EQUAL) return true;
+                    if (next == TokenType.LEFT_BRACKET) {
+                        continue;
+                    }
+                    return false;
                 }
             } else if (type == TokenType.EOF) {
                 return false;

@@ -10,6 +10,7 @@ public abstract class Expr {
         R visitBinaryExpr(Binary expr);
         R visitLogicalExpr(Logical expr);
         R visitUnaryExpr(Unary expr);
+        R visitTernaryExpr(Ternary expr);
         R visitCellLiteralExpr(CellLiteral expr);
         R visitIndexExpr(Index expr);
         R visitLiteralExpr(Literal expr);
@@ -67,6 +68,23 @@ public abstract class Expr {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitUnaryExpr(this);
+        }
+    }
+
+    public static class Ternary extends Expr {
+        public final Expr condition;
+        public final Expr thenBranch;
+        public final Expr elseBranch;
+
+        public Ternary(Expr condition, Expr thenBranch, Expr elseBranch) {
+            this.condition = condition;
+            this.thenBranch = thenBranch;
+            this.elseBranch = elseBranch;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitTernaryExpr(this);
         }
     }
 

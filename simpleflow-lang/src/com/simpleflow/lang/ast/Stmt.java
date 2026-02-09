@@ -13,6 +13,7 @@ public abstract class Stmt {
         R visitPutStmt(Put stmt);
         R visitPrintStmt(Print stmt);
         R visitPrintInlineStmt(PrintInline stmt);
+        R visitExpressionStmt(Expression stmt);
         R visitBlockStmt(Block stmt);
         R visitIfStmt(If stmt);
         R visitWhileStmt(While stmt);
@@ -21,6 +22,7 @@ public abstract class Stmt {
         R visitExitStmt(Exit stmt);
         R visitLeaveStmt(Leave stmt);
         R visitNextStmt(Next stmt);
+        R visitIncludeStmt(Include stmt);
     }
 
     public abstract <R> R accept(Visitor<R> visitor);
@@ -86,6 +88,19 @@ public abstract class Stmt {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitPrintInlineStmt(this);
+        }
+    }
+
+    public static class Expression extends Stmt {
+        public final Expr expression;
+
+        public Expression(Expr expression) {
+            this.expression = expression;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitExpressionStmt(this);
         }
     }
 
@@ -182,12 +197,12 @@ public abstract class Stmt {
     }
 
     public static class IndexAssign extends Stmt {
-        public final Token name;
+        public final Expr target;
         public final Expr index;
         public final Expr value;
 
-        public IndexAssign(Token name, Expr index, Expr value) {
-            this.name = name;
+        public IndexAssign(Expr target, Expr index, Expr value) {
+            this.target = target;
             this.index = index;
             this.value = value;
         }
@@ -210,6 +225,21 @@ public abstract class Stmt {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitIncDecStmt(this);
+        }
+    }
+
+    public static class Include extends Stmt {
+        public final Token keyword;
+        public final String path;
+
+        public Include(Token keyword, String path) {
+            this.keyword = keyword;
+            this.path = path;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIncludeStmt(this);
         }
     }
 }
