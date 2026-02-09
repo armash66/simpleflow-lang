@@ -20,7 +20,163 @@ const STORAGE_KEY = "simpleflow.editor";
 const LIBRARY_KEY = "simpleflow.library";
 let currentController = null;
 
-const defaultCode = `store a = 10\nstore b = 3\n\nprint "a+b="\nshow a + b\n\nwhen (a > 10) {\n  show "big"\n} otherwise when (a > 5 and b < 5) {\n  show "medium"\n} otherwise {\n  show "small"\n}\n\nloop (store i = 1; i <= 3; i++) {\n  show i\n}\n\nstore c = @(1, 2, null, 4)\nshow c[2] == null\n\nexit`;
+const defaultCode = `# SimpleFlow: Maze Solver (BFS)
+
+define makeGrid(rows, cols) {
+  store grid = @()
+  store r = 1
+  while (r <= rows) {
+    store row = @()
+    store c = 1
+    while (c <= cols) {
+      row[c] = "."
+      c++
+    }
+    grid[r] = row
+    r++
+  }
+  return grid
+}
+
+define printGrid(grid) {
+  store r = 1
+  while (r <= length(grid)) {
+    store line = ""
+    store c = 1
+    while (c <= length(grid[r])) {
+      line = line + grid[r][c]
+      c++
+    }
+    show line
+    r++
+  }
+}
+
+define inBounds(r, c, rows, cols) {
+  return r >= 1 and r <= rows and c >= 1 and c <= cols
+}
+
+define setCell(grid, r, c, value) {
+  store row = grid[r]
+  row[c] = value
+  grid[r] = row
+}
+
+define enqueue(q, item) {
+  q[length(q) + 1] = item
+}
+
+define dequeue(q) {
+  store item = q[1]
+  # shift left
+  store i = 1
+  while (i < length(q)) {
+    q[i] = q[i + 1]
+    i++
+  }
+  # remove last
+  q[length(q)] = null
+  return item
+}
+
+define queueEmpty(q) {
+  return length(q) == 0 or q[1] == null
+}
+
+# Build maze
+store rows = 10
+store cols = 18
+store maze = makeGrid(rows, cols)
+
+# Walls
+store w = @(
+  @(2,2), @(2,3), @(2,4), @(2,5), @(2,6),
+  @(4,7), @(5,7), @(6,7), @(7,7),
+  @(8,3), @(8,4), @(8,5), @(8,6), @(8,7),
+  @(3,12), @(4,12), @(5,12), @(6,12), @(7,12), @(8,12)
+)
+
+store i = 1
+while (i <= length(w)) {
+  store r = w[i][1]
+  store c = w[i][2]
+  setCell(maze, r, c, "#")
+  i++
+}
+
+# Start / End
+store start = @(2, 2)
+store end = @(9, 16)
+setCell(maze, start[1], start[2], "S")
+setCell(maze, end[1], end[2], "E")
+
+# BFS setup
+store q = @()
+store visited = @()
+store prev = @()
+
+# visited and prev are maps: key = "r,c"
+define key(r, c) { return r + "," + c }
+
+enqueue(q, start)
+visited[key(start[1], start[2])] = true
+
+store found = false
+
+while (not queueEmpty(q)) {
+  store cur = dequeue(q)
+  store r = cur[1]
+  store c = cur[2]
+
+  when (r == end[1] and c == end[2]) {
+    found = true
+    leave
+  }
+
+  # neighbors: up, right, down, left
+  store dr = @(-1, 0, 1, 0)
+  store dc = @(0, 1, 0, -1)
+
+  store d = 1
+  while (d <= 4) {
+    store nr = r + dr[d]
+    store nc = c + dc[d]
+
+    when (inBounds(nr, nc, rows, cols)) {
+      when (maze[nr][nc] != "#") {
+        store k = key(nr, nc)
+        when (visited[k] != true) {
+          visited[k] = true
+          prev[k] = @(r, c)
+          enqueue(q, @(nr, nc))
+        }
+      }
+    }
+
+    d++
+  }
+}
+
+# Reconstruct path
+when (found) {
+  store curR = end[1]
+  store curC = end[2]
+  while (not (curR == start[1] and curC == start[2])) {
+    store k = key(curR, curC)
+    store p = prev[k]
+    when (p == null) { leave }
+    curR = p[1]
+    curC = p[2]
+    when (maze[curR][curC] == ".") {
+      setCell(maze, curR, curC, "*")
+    }
+  }
+}
+
+show "=== Maze ==="
+printGrid(maze)
+
+exit`;
 
 function setStatus(text) {
   runMeta.textContent = text;
@@ -61,7 +217,7 @@ function saveCode() {
 
 function updateLineNumbers() {
   if (!lineNumbers) return;
-  const lines = editor.value.split("\n").length || 1;
+  const lines = editor.value.length === 0 ? 1 : editor.value.split("\n").length;
   let output = "";
   for (let i = 1; i <= lines; i++) {
     output += i + "\n";
@@ -259,6 +415,8 @@ editor.addEventListener("scroll", () => {
     lineNumbers.scrollTop = editor.scrollTop;
   }
 });
+
+window.addEventListener("resize", updateLineNumbers);
 
 window.addEventListener("keydown", (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {

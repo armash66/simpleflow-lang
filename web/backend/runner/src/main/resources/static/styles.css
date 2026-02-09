@@ -236,6 +236,7 @@ body {
   user-select: none;
   white-space: pre;
   overflow: hidden;
+  min-width: 44px;
 }
 
 #codeEditor {
