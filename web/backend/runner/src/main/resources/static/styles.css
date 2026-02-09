@@ -226,7 +226,7 @@ body {
 
 .line-numbers {
   height: 100%;
-  padding: 18px 8px 18px 12px;
+  padding: 18px 6px 18px 6px;
   text-align: right;
   color: var(--muted);
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -237,7 +237,18 @@ body {
   user-select: none;
   white-space: pre;
   overflow: hidden;
-  min-width: 44px;
+  min-width: 36px;
+  position: relative;
+}
+
+#lineNumbersInner {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  left: 0;
+  padding-left: 0;
+  padding-right: 0;
+  white-space: pre;
 }
 
 #codeEditor {
