@@ -11,8 +11,12 @@ const menuBtn = document.getElementById("menuBtn");
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("overlay");
 const navLinks = document.querySelectorAll(".nav-link");
+const programName = document.getElementById("programName");
+const saveProgramBtn = document.getElementById("saveProgramBtn");
+const programList = document.getElementById("programList");
 
 const STORAGE_KEY = "simpleflow.editor";
+const LIBRARY_KEY = "simpleflow.library";
 let currentController = null;
 
 const defaultCode = `store a = 10\nstore b = 3\n\nprint "a+b="\nshow a + b\n\nwhen (a > 10) {\n  show "big"\n} otherwise when (a > 5 and b < 5) {\n  show "medium"\n} otherwise {\n  show "small"\n}\n\nloop (store i = 1; i <= 3; i++) {\n  show i\n}\n\nstore c = @(1, 2, null, 4)\nshow c[2] == null\n\nexit`;
@@ -52,6 +56,68 @@ function saveCode() {
   setTimeout(() => {
     editorMeta.textContent = "Autosave on";
   }, 800);
+}
+
+function loadLibrary() {
+  try {
+    const raw = localStorage.getItem(LIBRARY_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    if (!Array.isArray(data)) return [];
+    return data;
+  } catch {
+    return [];
+  }
+}
+
+function saveLibrary(list) {
+  localStorage.setItem(LIBRARY_KEY, JSON.stringify(list));
+}
+
+function renderLibrary() {
+  if (!programList) return;
+  const list = loadLibrary();
+  programList.innerHTML = "";
+
+  if (list.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "panel-meta";
+    empty.textContent = "No programs yet. Save one from the editor.";
+    programList.appendChild(empty);
+    return;
+  }
+
+  list.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "program-item";
+
+    const name = document.createElement("div");
+    name.className = "program-name";
+    name.textContent = item.name;
+
+    const loadBtn = document.createElement("button");
+    loadBtn.className = "btn small";
+    loadBtn.textContent = "Load";
+    loadBtn.addEventListener("click", () => {
+      editor.value = item.code;
+      saveCode();
+      setActivePage("home");
+    });
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn small ghost";
+    delBtn.textContent = "Delete";
+    delBtn.addEventListener("click", () => {
+      const updated = loadLibrary().filter((_, i) => i !== index);
+      saveLibrary(updated);
+      renderLibrary();
+    });
+
+    row.appendChild(name);
+    row.appendChild(loadBtn);
+    row.appendChild(delBtn);
+    programList.appendChild(row);
+  });
 }
 
 function setActivePage(page) {
@@ -134,6 +200,27 @@ editor.addEventListener("input", () => {
 runBtn.addEventListener("click", runCode);
 clearBtn.addEventListener("click", clearOutput);
 
+if (saveProgramBtn) {
+  saveProgramBtn.addEventListener("click", () => {
+    const name = programName.value.trim();
+    if (!name) {
+      programName.focus();
+      return;
+    }
+    const list = loadLibrary();
+    const existingIndex = list.findIndex((item) => item.name === name);
+    const entry = { name, code: editor.value };
+    if (existingIndex >= 0) {
+      list[existingIndex] = entry;
+    } else {
+      list.unshift(entry);
+    }
+    saveLibrary(list);
+    programName.value = "";
+    renderLibrary();
+  });
+}
+
 outTab.addEventListener("click", () => switchTab("output"));
 errTab.addEventListener("click", () => switchTab("errors"));
 
@@ -165,4 +252,5 @@ window.addEventListener("keydown", (event) => {
 });
 
 loadInitialCode();
+renderLibrary();
 setStatus("Idle");

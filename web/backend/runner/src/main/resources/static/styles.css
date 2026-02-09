@@ -300,6 +300,49 @@ body {
   gap: 8px;
 }
 
+.library-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.input {
+  flex: 1 1 220px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink);
+  font-family: "Space Grotesk", system-ui, sans-serif;
+}
+
+.program-list {
+  display: grid;
+  gap: 10px;
+}
+
+.program-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.program-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.btn.small {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
 .footer {
   display: flex;
   justify-content: space-between;
@@ -378,5 +421,8 @@ body {
   }
   .btn {
     width: 100%;
+  }
+  .program-item {
+    grid-template-columns: 1fr;
   }
 }

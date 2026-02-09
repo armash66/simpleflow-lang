@@ -25,6 +25,7 @@
         <nav class="nav">
           <button class="nav-link active" data-page="home">Home</button>
           <button class="nav-link" data-page="guide">Guide</button>
+          <button class="nav-link" data-page="library">Library</button>
         </nav>
         <div class="sidebar-footer">
           <div>Write. Run. Inspect.</div>
@@ -127,6 +128,32 @@
                     <li>Run <code>./mvnw spring-boot:run</code> (Windows: <code>mvnw.cmd spring-boot:run</code>)</li>
                     <li>Open <code>http://localhost:8080/</code></li>
                   </ol>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="page-library" class="page-section">
+            <div class="guide">
+              <div class="panel guide-card">
+                <div class="panel-header">
+                  <div class="panel-title">Program Library</div>
+                </div>
+                <div class="guide-body">
+                  <p>Save multiple programs and switch between them anytime.</p>
+                  <div class="library-form">
+                    <input id="programName" class="input" placeholder="Program name" />
+                    <button id="saveProgramBtn" class="btn primary">Save Current</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel guide-card">
+                <div class="panel-header">
+                  <div class="panel-title">Saved Programs</div>
+                </div>
+                <div class="guide-body">
+                  <div id="programList" class="program-list"></div>
                 </div>
               </div>
             </div>
