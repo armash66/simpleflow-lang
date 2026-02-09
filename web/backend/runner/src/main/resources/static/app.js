@@ -1,4 +1,5 @@
 const editor = document.getElementById("codeEditor");
+const lineNumbers = document.getElementById("lineNumbers");
 const output = document.getElementById("output");
 const errors = document.getElementById("errors");
 const runBtn = document.getElementById("runBtn");
@@ -56,6 +57,17 @@ function saveCode() {
   setTimeout(() => {
     editorMeta.textContent = "Autosave on";
   }, 800);
+}
+
+function updateLineNumbers() {
+  if (!lineNumbers) return;
+  const lines = editor.value.split("\n").length || 1;
+  let output = "";
+  for (let i = 1; i <= lines; i++) {
+    output += i + "\n";
+  }
+  lineNumbers.textContent = output;
+  lineNumbers.scrollTop = editor.scrollTop;
 }
 
 function loadLibrary() {
@@ -195,6 +207,7 @@ function clearOutput() {
 
 editor.addEventListener("input", () => {
   saveCode();
+  updateLineNumbers();
 });
 
 runBtn.addEventListener("click", runCode);
@@ -241,6 +254,12 @@ menuBtn.addEventListener("click", () => {
 
 overlay.addEventListener("click", closeSidebar);
 
+editor.addEventListener("scroll", () => {
+  if (lineNumbers) {
+    lineNumbers.scrollTop = editor.scrollTop;
+  }
+});
+
 window.addEventListener("keydown", (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
     event.preventDefault();
@@ -252,5 +271,6 @@ window.addEventListener("keydown", (event) => {
 });
 
 loadInitialCode();
+updateLineNumbers();
 renderLibrary();
 setStatus("Idle");
