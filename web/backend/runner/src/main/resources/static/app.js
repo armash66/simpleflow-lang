@@ -1,6 +1,5 @@
 const editor = document.getElementById("codeEditor");
 const lineNumbers = document.getElementById("lineNumbers");
-const lineNumbersInner = document.getElementById("lineNumbersInner");
 const output = document.getElementById("output");
 const errors = document.getElementById("errors");
 const runBtn = document.getElementById("runBtn");
@@ -223,13 +222,8 @@ function updateLineNumbers() {
   for (let i = 1; i <= lines; i++) {
     output += i + "\n";
   }
-  if (lineNumbersInner) {
-    lineNumbersInner.textContent = output;
-    lineNumbersInner.style.transform = `translateY(-${editor.scrollTop}px)`;
-  } else {
-    lineNumbers.textContent = output;
-    lineNumbers.scrollTop = editor.scrollTop;
-  }
+  lineNumbers.textContent = output;
+  lineNumbers.scrollTop = editor.scrollTop;
 }
 
 function loadLibrary() {
@@ -417,9 +411,7 @@ menuBtn.addEventListener("click", () => {
 overlay.addEventListener("click", closeSidebar);
 
 editor.addEventListener("scroll", () => {
-  if (lineNumbersInner) {
-    lineNumbersInner.style.transform = `translateY(-${editor.scrollTop}px)`;
-  } else if (lineNumbers) {
+  if (lineNumbers) {
     lineNumbers.scrollTop = editor.scrollTop;
   }
 });
