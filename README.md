@@ -130,6 +130,25 @@ show has(c, "name")
 show slice(c, 1, 2)
 ```
 
+### New Syntax
+```sf
+# Expression statements
+myFunc(1, 2)
+
+# Ternary
+a > b ? a : b
+
+# Multi-line string
+store s = """line 1
+line 2"""
+```
+
+---
+
+## Error Handling
+
+SimpleFlow reports syntax and runtime errors with line/column info and a caret.
+
 ---
 
 ## Project Structure
@@ -143,12 +162,6 @@ simpleflow-lang/
     ast/
     interpreter/
 ```
-
----
-
-## Error Handling
-
-SimpleFlow reports syntax and runtime errors with line/column info and a caret.
 
 ---
 

@@ -339,6 +339,31 @@ body {
   gap: 8px;
 }
 
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.feature-item {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.feature-item code {
+  color: #dbeafe;
+  font-size: 0.9rem;
+}
+
+.feature-item span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .library-form {
   display: flex;
   gap: 10px;

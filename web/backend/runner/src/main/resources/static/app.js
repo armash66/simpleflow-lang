@@ -484,6 +484,20 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+editor.addEventListener("keydown", (event) => {
+  if (event.key === "Tab") {
+    event.preventDefault();
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const value = editor.value;
+    const insert = "  ";
+    editor.value = value.slice(0, start) + insert + value.slice(end);
+    editor.selectionStart = editor.selectionEnd = start + insert.length;
+    updateLineNumbers();
+    saveCode();
+  }
+});
+
 loadInitialCode();
 updateLineNumbers();
 renderLibrary();
