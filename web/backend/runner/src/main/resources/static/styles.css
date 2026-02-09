@@ -226,7 +226,7 @@ body {
 
 .line-numbers {
   height: 100%;
-  padding: 18px 8px 18px 16px;
+  padding: 18px 8px 18px 0;
   text-align: right;
   color: var(--muted);
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -244,9 +244,10 @@ body {
 #lineNumbersInner {
   position: absolute;
   top: 0;
-  right: 8px;
+  right: 12px;
   left: 0;
-  padding-left: 16px;
+  padding-left: 0;
+  padding-right: 4px;
   white-space: pre;
 }
 
