@@ -85,8 +85,9 @@
                 </div>
                 <div class="guide-body">
                   <p>
-                    SimpleFlow is a minimal interpreted language built in Java. It focuses on readable,
-                    English-like syntax with a tiny surface area for fast experimentation.
+                    SimpleFlow is a minimal interpreted language built in Java with a single core data
+                    structure (cell) and readable, English-like syntax. It includes a web studio for
+                    fast editing and execution.
                   </p>
                 </div>
               </div>
@@ -104,9 +105,13 @@
                     <li><code>next</code> (continue) and <code>leave</code> (break)</li>
                     <li><code>define</code> functions + <code>return</code></li>
                     <li><code>print</code> (no newline) and <code>show</code> (newline)</li>
-                    <li><code>null</code> literal</li>
+                    <li><code>null</code>, <code>true</code>, <code>false</code> literals</li>
                     <li><code>cell</code> literal: <code>@(1, 2, 3)</code></li>
                     <li><code>length(cell)</code> and 1-based indexing: <code>c[1]</code></li>
+                    <li>Nested index assignment: <code>c[a][b] = x</code></li>
+                    <li>Ternary: <code>a ? b : c</code></li>
+                    <li>Not equal: <code>!=</code></li>
+                    <li>Expression statements (call a function as a line)</li>
                   </ul>
                 </div>
               </div>
@@ -119,6 +124,49 @@
                   <ul class="list">
                     <li><code>show</code> = print with newline</li>
                     <li><code>print</code> / <code>say</code> = print without newline (if enabled)</li>
+                    <li><code>store</code> / <code>set</code></li>
+                    <li><code>loop</code> / <code>for</code></li>
+                    <li><code>otherwise</code> / <code>else</code> (if added)</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="panel guide-card">
+                <div class="panel-header">
+                  <div class="panel-title">Cell Helpers</div>
+                </div>
+                <div class="guide-body">
+                  <ul class="list">
+                    <li><code>push(cell, value)</code>, <code>pop(cell)</code></li>
+                    <li><code>shift(cell)</code>, <code>unshift(cell, value)</code></li>
+                    <li><code>keys(cell)</code>, <code>values(cell)</code>, <code>has(cell, key)</code></li>
+                    <li><code>slice(cell, start, end)</code></li>
+                    <li><code>merge(cellA, cellB)</code></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="panel guide-card">
+                <div class="panel-header">
+                  <div class="panel-title">Standard Library</div>
+                </div>
+                <div class="guide-body">
+                  <ul class="list">
+                    <li><code>input()</code>, <code>random(min, max)</code>, <code>clock()</code></li>
+                    <li><code>type(x)</code>, <code>toNumber(x)</code>, <code>toString(x)</code></li>
+                    <li><code>assert(condition, message)</code></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="panel guide-card">
+                <div class="panel-header">
+                  <div class="panel-title">Files + Strings</div>
+                </div>
+                <div class="guide-body">
+                  <ul class="list">
+                    <li>Multi-line strings: <code>"""line1\nline2"""</code></li>
+                    <li><code>include "file.sf"</code> or <code>import "file.sf"</code></li>
                   </ul>
                 </div>
               </div>
@@ -132,6 +180,8 @@
                     <li>Open terminal in <code>web/backend/runner</code></li>
                     <li>Run <code>./mvnw spring-boot:run</code> (Windows: <code>mvnw.cmd spring-boot:run</code>)</li>
                     <li>Open <code>http://localhost:8080/</code></li>
+                    <li>CLI: <code>java -cp out com.simpleflow.lang.Main file.sf</code></li>
+                    <li>REPL: run <code>java -cp out com.simpleflow.lang.Main</code> with no args</li>
                   </ol>
                 </div>
               </div>
