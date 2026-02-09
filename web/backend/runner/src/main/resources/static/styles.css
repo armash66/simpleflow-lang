@@ -38,6 +38,7 @@ body {
   border-right: 1px solid var(--panel-border);
   position: relative;
   z-index: 20;
+  transition: none;
 }
 
 .sidebar-top {
@@ -237,6 +238,16 @@ body {
   white-space: pre;
   overflow: hidden;
   min-width: 44px;
+  position: relative;
+}
+
+#lineNumbersInner {
+  position: absolute;
+  top: 0;
+  right: 8px;
+  left: 0;
+  padding-left: 16px;
+  white-space: pre;
 }
 
 #codeEditor {
@@ -252,6 +263,9 @@ body {
   font-size: 0.95rem;
   line-height: 1.55;
   overflow: auto;
+  white-space: pre;
+  overflow-wrap: normal;
+  tab-size: 2;
 }
 
 .output {
@@ -412,7 +426,7 @@ body {
     bottom: 0;
     width: 260px;
     transform: translateX(-100%);
-    transition: transform 0.2s ease;
+    transition: none;
   }
 
   .sidebar.open {
