@@ -1,6 +1,11 @@
 const editor = document.getElementById("codeEditor");
 const lineNumbers = document.getElementById("lineNumbers");
 const lineNumbersInner = document.getElementById("lineNumbersInner");
+const editorShell = document.querySelector(".editor-shell");
+let scrollRaf = null;
+let lastDigitCount = 0;
+let cachedDigitWidth = null;
+const MIN_GUTTER_DIGITS = 4;
 const output = document.getElementById("output");
 const errors = document.getElementById("errors");
 const runBtn = document.getElementById("runBtn");
@@ -230,6 +235,45 @@ function updateLineNumbers() {
     lineNumbers.textContent = output;
     lineNumbers.scrollTop = editor.scrollTop;
   }
+
+  updateGutterWidth(lines);
+}
+
+function updateGutterWidth(totalLines) {
+  const digits = Math.max(String(totalLines).length, MIN_GUTTER_DIGITS);
+  if (digits === lastDigitCount) return;
+  lastDigitCount = digits;
+
+  if (!cachedDigitWidth) {
+    cachedDigitWidth = measureDigitWidth();
+  }
+
+  const padLeft = 6;
+  const padRight = 6;
+  const safety = 6;
+  const width = Math.ceil(digits * cachedDigitWidth + padLeft + padRight + safety);
+
+  if (editorShell) {
+    editorShell.style.setProperty("--gutter-width", `${width}px`);
+    editorShell.style.setProperty("--gutter-pad-left", `${padLeft}px`);
+    editorShell.style.setProperty("--gutter-pad-right", `${padRight}px`);
+    const style = getComputedStyle(editor);
+    editorShell.style.setProperty("--editor-font-size", style.fontSize);
+    editorShell.style.setProperty("--editor-line-height", style.lineHeight);
+    editorShell.style.setProperty("--gutter-pad-top", style.paddingTop);
+    editorShell.style.setProperty("--gutter-pad-bottom", style.paddingBottom);
+  }
+}
+
+function measureDigitWidth() {
+  const style = getComputedStyle(editor);
+  const font = `${style.fontStyle} ${style.fontVariant} ${style.fontWeight} ${style.fontSize} / ${style.lineHeight} ${style.fontFamily}`;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font = font;
+  const sample = "0000000000";
+  const width = ctx.measureText(sample).width / sample.length;
+  return width || 8;
 }
 
 function loadLibrary() {
@@ -417,11 +461,15 @@ menuBtn.addEventListener("click", () => {
 overlay.addEventListener("click", closeSidebar);
 
 editor.addEventListener("scroll", () => {
-  if (lineNumbersInner) {
-    lineNumbersInner.style.transform = `translateY(-${editor.scrollTop}px)`;
-  } else if (lineNumbers) {
-    lineNumbers.scrollTop = editor.scrollTop;
-  }
+  if (scrollRaf) return;
+  scrollRaf = requestAnimationFrame(() => {
+    scrollRaf = null;
+    if (lineNumbersInner) {
+      lineNumbersInner.style.transform = `translateY(-${editor.scrollTop}px)`;
+    } else if (lineNumbers) {
+      lineNumbers.scrollTop = editor.scrollTop;
+    }
+  });
 });
 
 window.addEventListener("resize", updateLineNumbers);

@@ -219,35 +219,35 @@ body {
 
 .editor-shell {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: var(--gutter-width, 32px) 1fr;
+  column-gap: 0;
   height: 100%;
   min-height: 0;
 }
 
 .line-numbers {
   height: 100%;
-  padding: 18px 6px 18px 6px;
+  padding: 0 var(--gutter-pad-right, 6px) 0 var(--gutter-pad-left, 6px);
   text-align: right;
   color: var(--muted);
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.9rem;
-  line-height: 1.55;
+  font-size: var(--editor-font-size, 0.95rem);
+  line-height: var(--editor-line-height, 1.55);
   border-right: 1px solid var(--panel-border);
   background: rgba(255, 255, 255, 0.02);
   user-select: none;
   white-space: pre;
   overflow: hidden;
-  min-width: 36px;
   position: relative;
+  width: var(--gutter-width, 32px);
 }
 
 #lineNumbersInner {
   position: absolute;
   top: 0;
-  right: 6px;
+  right: var(--gutter-pad-right, 6px);
   left: 0;
-  padding-left: 0;
-  padding-right: 0;
+  padding: var(--gutter-pad-top, 8px) 0 var(--gutter-pad-bottom, 12px);
   white-space: pre;
 }
 
@@ -258,7 +258,7 @@ body {
   outline: none;
   background: transparent;
   color: var(--ink);
-  padding: 18px 18px 18px 12px;
+  padding: 8px 18px 12px 10px;
   resize: none;
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.95rem;
