@@ -373,7 +373,7 @@ async function runCode() {
   currentController = new AbortController();
 
   try {
-    const response = await fetch("/run", {
+    const response = await fetch("/api/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: editor.value }),

@@ -1,0 +1,8 @@
+{
+  "name": "simpleflow-vercel-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "install": "curl -sL https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1%2B1/OpenJDK17U-jre_x64_linux_hotspot_17.0.8.1_1.tar.gz | tar -xz && mv jdk-17.0.8.1+1-jre jre"
+  },
+  "dependencies": {}
+}
