@@ -68,31 +68,40 @@ SimpleFlow is a small, readable language designed for learning, rapid experiment
 
 ---
 
-## Quick Start
+## Quick Start & Deployment
 
-### 1) Run the Web Studio
+### 1) Free Cloud Hosting (Vercel)
+SimpleFlow now fully supports being hosted for free entirely on Vercel utilizing a custom serverless Java bridge!
+1. Push this repository to GitHub.
+2. Go to [Vercel](https://vercel.com) and import the repository.
+3. Don't touch any settings. Just hit **Deploy**.
+
+Vercel will natively download the JDK under the hood, route the UI effectively, and execute Java serverlessly.
+
+### 2) Run Web Studio Locally (Node.js)
+If you just want to test the Web Studio environment locally using Vercel's simulation:
+```bash
+npm install -g vercel
+npx vercel dev
+```
+Open `http://localhost:3000/`.
+
+### 3) Run Web Studio Locally (Spring Boot)
+For significantly faster local performance, use the native Java Spring Boot server:
 From `web/backend/runner`:
-
 ```bash
-./mvnw spring-boot:run
+./mvnw clean spring-boot:run
 ```
+Open `http://localhost:8080/`. The frontend is smart enough to detect the port and route the code appropriately.
 
-Open:
-
-```
-http://localhost:8080/
-```
-
-### 2) Run from CLI
+### 4) Run from CLI
 From `simpleflow-lang`:
-
 ```bash
-javac -d out (Get-ChildItem -Recurse -Filter *.java | ForEach-Object FullName)
+javac --release 17 -d out (Get-ChildItem -Recurse -Filter *.java | Select-Object -ExpandProperty FullName)
 java -cp out com.simpleflow.lang.Main test.sf
 ```
 
-### 3) Start REPL
-
+### 5) Start REPL
 ```bash
 java -cp out com.simpleflow.lang.Main
 ```
@@ -101,19 +110,11 @@ java -cp out com.simpleflow.lang.Main
 
 ## Web Studio
 
-The Studio provides:
+The Studio is a full featured playground environment:
 - Code editor with line numbers
 - Output panel (console + errors)
 - A guide page describing syntax and built-ins
 - A program library for saving multiple scripts in the browser
-
----
-
-## CLI & REPL
-
-**CLI** executes a `.sf` file and prints output to stdout.
-
-**REPL** starts when `Main` is launched with no arguments. It supports multi-line blocks using `{ ... }`.
 
 ---
 
