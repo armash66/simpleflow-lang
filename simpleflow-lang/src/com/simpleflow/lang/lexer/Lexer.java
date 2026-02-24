@@ -75,7 +75,15 @@ public class Lexer {
             case '+' -> addToken(match('+') ? TokenType.PLUS_PLUS : TokenType.PLUS);
             case '-' -> addToken(match('-') ? TokenType.MINUS_MINUS : TokenType.MINUS);
             case '*' -> addToken(TokenType.STAR);
-            case '/' -> addToken(TokenType.SLASH);
+            case '/' -> {
+                if (match('/')) {
+                    // Comment: ignore until end of line
+                    while (peek() != '\n' && !isAtEnd())
+                        advance();
+                } else {
+                    addToken(TokenType.SLASH);
+                }
+            }
             case ';' -> addToken(TokenType.SEMICOLON);
             case '@' -> addToken(TokenType.AT);
             case '!' -> addToken(match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
@@ -85,7 +93,8 @@ public class Lexer {
 
             case '#' -> {
                 // Comment: ignore until end of line
-                while (peek() != '\n' && !isAtEnd()) advance();
+                while (peek() != '\n' && !isAtEnd())
+                    advance();
             }
 
             case '"' -> {
@@ -104,7 +113,7 @@ public class Lexer {
                 line++;
                 column = 1;
                 break;
-                }
+            }
 
             default -> {
                 if (isDigit(c)) {
@@ -113,25 +122,27 @@ public class Lexer {
                     identifier();
                 } else {
                     System.err.println(
-                        "Unexpected character '" + c + "' at line " + line
-                    );
+                            "Unexpected character '" + c + "' at line " + line);
                 }
             }
         }
     }
 
     private void identifier() {
-        while (isAlphaNumeric(peek())) advance();
+        while (isAlphaNumeric(peek()))
+            advance();
 
         String text = source.substring(start, current);
         TokenType type = keywords.get(text);
 
-        if (type == null) type = TokenType.IDENTIFIER;
+        if (type == null)
+            type = TokenType.IDENTIFIER;
         addToken(type);
     }
 
     private void number() {
-        while (isDigit(peek())) advance();
+        while (isDigit(peek()))
+            advance();
 
         int value = Integer.parseInt(source.substring(start, current));
         addToken(TokenType.NUMBER, value);
@@ -139,7 +150,8 @@ public class Lexer {
 
     private void string() {
         while (peek() != '"' && !isAtEnd()) {
-            if (peek() == '\n') line++;
+            if (peek() == '\n')
+                line++;
             advance();
         }
 
@@ -175,24 +187,29 @@ public class Lexer {
     }
 
     private boolean match(char expected) {
-        if (isAtEnd()) return false;
-        if (source.charAt(current) != expected) return false;
+        if (isAtEnd())
+            return false;
+        if (source.charAt(current) != expected)
+            return false;
         current++;
         return true;
     }
 
     private char peek() {
-        if (isAtEnd()) return '\0';
+        if (isAtEnd())
+            return '\0';
         return source.charAt(current);
     }
 
     private char peekNext() {
-        if (current + 1 >= source.length()) return '\0';
+        if (current + 1 >= source.length())
+            return '\0';
         return source.charAt(current + 1);
     }
 
     private char peekThird() {
-        if (current + 2 >= source.length()) return '\0';
+        if (current + 2 >= source.length())
+            return '\0';
         return source.charAt(current + 2);
     }
 
@@ -221,7 +238,7 @@ public class Lexer {
 
     private boolean isAlpha(char c) {
         return (c >= 'a' && c <= 'z') ||
-               (c >= 'A' && c <= 'Z') ||
+                (c >= 'A' && c <= 'Z') ||
                 c == '_';
     }
 
