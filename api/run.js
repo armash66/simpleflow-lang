@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         const jarPath = path.join(process.cwd(), 'simpleflow-lang', 'simpleflow-lang.jar');
 
         const result = await new Promise((resolve) => {
-            exec(`"${javaPath}" -jar "${jarPath}" "${tempFilePath}"`, { timeout: 3000 }, (error, stdout, stderr) => {
+            exec(`"${javaPath}" -cp "${jarPath}" com.simpleflow.lang.Main "${tempFilePath}"`, { timeout: 3000 }, (error, stdout, stderr) => {
                 resolve({ error, stdout, stderr });
             });
         });
