@@ -78,8 +78,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             interpret(statements);
         } catch (ParseError e) {
             throw new RuntimeException(
-                "Parse error at line " + e.line + ", column " + e.column + ": " + e.getMessage()
-            );
+                    "Parse error at line " + e.line + ", column " + e.column + ": " + e.getMessage());
         }
     }
 
@@ -242,15 +241,49 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object right = evaluate(expr.right);
 
         return switch (expr.operator.type) {
-            case PLUS -> (int) left + (int) right;
-            case MINUS -> (int) left - (int) right;
-            case STAR -> (int) left * (int) right;
-            case SLASH -> (int) left / (int) right;
-
-            case GREATER -> (int) left > (int) right;
-            case GREATER_EQUAL -> (int) left >= (int) right;
-            case LESS -> (int) left < (int) right;
-            case LESS_EQUAL -> (int) left <= (int) right;
+            case PLUS -> {
+                if (left instanceof Integer l && right instanceof Integer r)
+                    yield l + r;
+                if (left instanceof String || right instanceof String)
+                    yield String.valueOf(left) + String.valueOf(right);
+                throw new RuntimeException(
+                        "Type error: cannot add " + getTypeName(left) + " and " + getTypeName(right));
+            }
+            case MINUS -> {
+                if (left instanceof Integer l && right instanceof Integer r)
+                    yield l - r;
+                throw new RuntimeException("Type error: subtraction requires numbers.");
+            }
+            case STAR -> {
+                if (left instanceof Integer l && right instanceof Integer r)
+                    yield l * r;
+                throw new RuntimeException("Type error: multiplication requires numbers.");
+            }
+            case SLASH -> {
+                if (left instanceof Integer l && right instanceof Integer r)
+                    yield l / r;
+                throw new RuntimeException("Type error: division requires numbers.");
+            }
+            case GREATER -> {
+                if (left instanceof Integer l && right instanceof Integer r)
+                    yield l > r;
+                throw new RuntimeException("Type error: comparison requires numbers.");
+            }
+            case GREATER_EQUAL -> {
+                if (left instanceof Integer l && right instanceof Integer r)
+                    yield l >= r;
+                throw new RuntimeException("Type error: comparison requires numbers.");
+            }
+            case LESS -> {
+                if (left instanceof Integer l && right instanceof Integer r)
+                    yield l < r;
+                throw new RuntimeException("Type error: comparison requires numbers.");
+            }
+            case LESS_EQUAL -> {
+                if (left instanceof Integer l && right instanceof Integer r)
+                    yield l <= r;
+                throw new RuntimeException("Type error: comparison requires numbers.");
+            }
             case EQUAL_EQUAL -> java.util.Objects.equals(left, right);
             case BANG_EQUAL -> !java.util.Objects.equals(left, right);
 
@@ -265,7 +298,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (expr.operator.type == TokenType.NOT) {
             return !isTruthy(right);
         }
-        
+
         if (expr.operator.type == TokenType.MINUS) {
             if (right instanceof Integer i) {
                 return -i;
@@ -296,9 +329,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         if (expr.arguments.size() != function.arity()) {
             throw new RuntimeException(
-                "Expected " + function.arity() +
-                " arguments but got " + expr.arguments.size()
-            );
+                    "Expected " + function.arity() +
+                            " arguments but got " + expr.arguments.size());
         }
 
         List<Object> arguments = new java.util.ArrayList<>();
@@ -358,15 +390,33 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // ---------------- HELPERS ----------------
 
     private boolean isTruthy(Object value) {
-        if (value == null) return false;
-        if (value instanceof Boolean b) return b;
-        if (value instanceof Integer i) return i != 0;
+        if (value == null)
+            return false;
+        if (value instanceof Boolean b)
+            return b;
+        if (value instanceof Integer i)
+            return i != 0;
         return true;
     }
 
     private String stringify(Object value) {
-        if (value == null) return "null";
+        if (value == null)
+            return "null";
         return value.toString();
+    }
+
+    private String getTypeName(Object value) {
+        if (value == null)
+            return "null";
+        if (value instanceof Integer)
+            return "number";
+        if (value instanceof String)
+            return "string";
+        if (value instanceof Boolean)
+            return "boolean";
+        if (value instanceof Cell)
+            return "cell";
+        return value.getClass().getSimpleName();
     }
 
     private void executeBlock(List<Stmt> statements, Environment newEnv) {
@@ -386,9 +436,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object left = evaluate(expr.left);
 
         if (expr.operator.type == TokenType.OR) {
-            if (isTruthy(left)) return true;
+            if (isTruthy(left))
+                return true;
         } else { // AND
-            if (!isTruthy(left)) return false;
+            if (!isTruthy(left))
+                return false;
         }
 
         Object right = evaluate(expr.right);
@@ -397,10 +449,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     // ---------------- CONTROL FLOW ----------------
 
-    private static class ExitSignal extends RuntimeException {}
+    private static class ExitSignal extends RuntimeException {
+    }
 
     private static class ReturnSignal extends RuntimeException {
         final Object value;
+
         ReturnSignal(Object value) {
             this.value = value;
         }
@@ -408,6 +462,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private interface Callable {
         int arity();
+
         Object call(Interpreter interpreter, List<Object> arguments);
     }
 
@@ -530,12 +585,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         @Override
         public Object call(Interpreter interpreter, List<Object> arguments) {
             Object value = arguments.get(0);
-            if (value == null) return "null";
-            if (value instanceof Integer) return "number";
-            if (value instanceof String) return "string";
-            if (value instanceof Boolean) return "boolean";
-            if (value instanceof Cell) return "cell";
-            if (value instanceof Callable) return "function";
+            if (value == null)
+                return "null";
+            if (value instanceof Integer)
+                return "number";
+            if (value instanceof String)
+                return "string";
+            if (value instanceof Boolean)
+                return "boolean";
+            if (value instanceof Cell)
+                return "cell";
+            if (value instanceof Callable)
+                return "function";
             return "unknown";
         }
     }
@@ -549,8 +610,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         @Override
         public Object call(Interpreter interpreter, List<Object> arguments) {
             Object value = arguments.get(0);
-            if (value instanceof Integer) return value;
-            if (value instanceof Boolean b) return b ? 1 : 0;
+            if (value instanceof Integer)
+                return value;
+            if (value instanceof Boolean b)
+                return b ? 1 : 0;
             if (value instanceof String s) {
                 try {
                     return Integer.parseInt(s.trim());
@@ -701,7 +764,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 throw new RuntimeException("slice() expects a cell.");
             }
             if (!(arguments.get(1) instanceof Integer start) ||
-                !(arguments.get(2) instanceof Integer end)) {
+                    !(arguments.get(2) instanceof Integer end)) {
                 throw new RuntimeException("slice() expects start/end numbers.");
             }
             return cell.slice(start, end);
