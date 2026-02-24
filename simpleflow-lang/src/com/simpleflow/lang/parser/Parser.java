@@ -384,7 +384,7 @@ public class Parser {
     }
 
     private Expr unary() {
-        if (match(TokenType.NOT)) {
+        if (match(TokenType.NOT, TokenType.MINUS)) {
             Token operator = previous();
             Expr right = unary();
             return new Expr.Unary(operator, right);

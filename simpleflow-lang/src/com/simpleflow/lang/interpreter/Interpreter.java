@@ -265,6 +265,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (expr.operator.type == TokenType.NOT) {
             return !isTruthy(right);
         }
+        
+        if (expr.operator.type == TokenType.MINUS) {
+            if (right instanceof Integer i) {
+                return -i;
+            }
+            throw new RuntimeException("Unary minus expects a number.");
+        }
 
         throw new RuntimeException("Unknown operator.");
     }
