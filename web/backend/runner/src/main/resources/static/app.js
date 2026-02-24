@@ -373,7 +373,10 @@ async function runCode() {
   currentController = new AbortController();
 
   try {
-    const response = await fetch("/api/run", {
+    // Use /run for local Spring Boot (port 8080), or /api/run for Vercel (port 3000 / cloud)
+    const runEndpoint = window.location.port === "8080" ? "/run" : "/api/run";
+
+    const response = await fetch(runEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: editor.value }),
